@@ -243,9 +243,23 @@ a{color:inherit;text-decoration:none}
 }
 .mobile-view-toggle svg { width: 16px; height: 16px; color: var(--accent); }
 
+/* Sidebar off-canvas overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(13,15,20,0.8); z-index: 9998;
+}
+.sidebar-overlay.open { display: block; }
+
 @media(max-width:768px){
   .shell{grid-template-columns:1fr}
-  .sidebar{display:none}
+  .sidebar{
+    display:flex; position:fixed; top:0; left:-320px; width:280px;
+    z-index:9999; transition:transform 0.3s ease; border-right:none;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+  }
+  .sidebar.open { transform: translateX(320px); }
+  #btn-mobile-filter, #btn-close-sidebar { display: flex !important; }
   .stats-row{grid-template-columns:repeat(2,1fr)}
   #map-container{height:60vh;min-height:380px}
   .mobile-view-toggle { display: flex; }
@@ -257,14 +271,17 @@ a{color:inherit;text-decoration:none}
 
   <!-- Sidebar -->
   <aside class="sidebar">
-    <div class="logo">
+    <div class="logo" style="display:flex;align-items:center;width:100%">
       <div class="logo-mark">
         <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 3a1 1 0 0 1 1 1v4l3 1.5-.5 1L10 11V6a1 1 0 0 1-1-1z"/></svg>
       </div>
-      <div>
+      <div style="flex:1">
         <div class="logo-text">Section 8<br>MLS Search</div>
         <div class="logo-sub">Miami-Dade</div>
       </div>
+      <button onclick="toggleSidebar()" style="background:none;border:none;color:var(--muted);cursor:pointer;display:none;padding:4px" id="btn-close-sidebar">
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
     </div>
 
     <div>
@@ -331,16 +348,25 @@ a{color:inherit;text-decoration:none}
   </aside>
 
   <!-- Main -->
+  <!-- Sidebar overlay -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
   <main class="main">
     <div class="page-header">
       <div>
         <h1 class="page-title">MLS Section <span>8</span> listings</h1>
         <p class="page-sub">Miami-Dade · Filtered by 2024 Payment Standards · Spark API</p>
       </div>
-      <button class="btn-refresh" onclick="loadData()">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.5-4M4 6v4h4"/></svg>
-        Refresh now
-      </button>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-refresh" onclick="toggleSidebar()" id="btn-mobile-filter" style="display:none;align-items:center;background:var(--surface2);">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h14M6 10h8M9 15h2"/></svg>
+          Filtros
+        </button>
+        <button class="btn-refresh" onclick="loadData()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10a6 6 0 1 0 1.5-4M4 6v4h4"/></svg>
+          Refresh now
+        </button>
+      </div>
     </div>
     
     <div class="stats-row" id="stats-row">
@@ -521,6 +547,11 @@ function toggleMobileView() {
     span.textContent = 'Ver mapa';
     svg.innerHTML = '<path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/>';
   }
+}
+
+function toggleSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
 }
 
 function setFilter(f, el) {
