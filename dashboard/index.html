@@ -220,11 +220,35 @@ a{color:inherit;text-decoration:none}
   border-radius: 0 !important;
   border: none !important;
 }
+/* Mobile Toggle */
+.mobile-view-toggle {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  color: var(--text);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-family: var(--font-head);
+  font-weight: 500;
+  font-size: 13px;
+  z-index: 1000;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.mobile-view-toggle svg { width: 16px; height: 16px; color: var(--accent); }
+
 @media(max-width:768px){
   .shell{grid-template-columns:1fr}
   .sidebar{display:none}
   .stats-row{grid-template-columns:repeat(2,1fr)}
   #map-container{height:60vh;min-height:380px}
+  .mobile-view-toggle { display: flex; }
 }
 </style>
 </head>
@@ -369,6 +393,11 @@ a{color:inherit;text-decoration:none}
       </div>
     </div>
   </main>
+  
+  <button class="mobile-view-toggle" id="mobile-toggle" onclick="toggleMobileView()">
+    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/></svg>
+    <span>Ver mapa</span>
+  </button>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -464,6 +493,22 @@ function setDisplayMode(mode, el) {
   document.getElementById('listings-grid').style.display = mode === 'cards' ? 'grid'  : 'none';
   document.getElementById('map-container').style.display = mode === 'map'   ? 'block' : 'none';
   render();
+}
+
+function toggleMobileView() {
+  const newMode = displayMode === 'cards' ? 'map' : 'cards';
+  setDisplayMode(newMode);
+  
+  const span = document.querySelector('#mobile-toggle span');
+  const svg = document.querySelector('#mobile-toggle svg');
+  
+  if (newMode === 'map') {
+    span.textContent = 'Ver tarjetas';
+    svg.innerHTML = '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/>';
+  } else {
+    span.textContent = 'Ver mapa';
+    svg.innerHTML = '<path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/>';
+  }
 }
 
 function setFilter(f, el) {
