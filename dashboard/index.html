@@ -300,6 +300,16 @@ a{color:inherit;text-decoration:none}
     </div>
 
     <div>
+      <div class="nav-label" style="margin-bottom:.5rem">Property Type</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem;margin-bottom:1.5rem">
+        <button class="filter-tag on" data-type="all" onclick="filterType(this,'all')">All</button>
+        <button class="filter-tag" data-type="House" onclick="filterType(this,'House')">House</button>
+        <button class="filter-tag" data-type="Condo" onclick="filterType(this,'Condo')">Apt/Condo</button>
+        <button class="filter-tag" data-type="Duplex" onclick="filterType(this,'Duplex')">Duplex</button>
+      </div>
+    </div>
+
+    <div>
       <div class="nav-label" style="margin-bottom:.5rem">Bedrooms</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem">
         <button class="filter-tag on" data-bed="all" onclick="filterBed(this,'all')">All</button>
@@ -428,6 +438,7 @@ let allListings  = [];
 let displayMode  = 'cards';  // 'cards' | 'map'
 let activeFilter = 'all';    // 'all' | 'eligible' | 'accepts' | 'highdemand'
 let activeBed    = 'all';
+let activeType   = 'all';
 let filters      = { accepts: false, highdemand: false };
 let mapInstance  = null;
 let mapMarkers   = [];
@@ -469,6 +480,7 @@ function getFilteredData() {
   if (activeFilter === 'accepts')    data = data.filter(l => l.section8.historically_accepts);
   if (activeFilter === 'highdemand') data = data.filter(l => l.section8.high_demand_zip);
   if (activeBed !== 'all')           data = data.filter(l => activeBed == 4 ? l.bedrooms >= 4 : l.bedrooms == activeBed);
+  if (activeType !== 'all')          data = data.filter(l => activeType === 'Condo' ? (l.type === 'Condo' || l.type === 'Apartment') : l.type === activeType);
   if (filters.accepts)               data = data.filter(l => l.section8.historically_accepts);
   if (filters.highdemand)            data = data.filter(l => l.section8.high_demand_zip);
   if (q) data = data.filter(l =>
@@ -523,6 +535,13 @@ function setFilter(f, el) {
 function filterBed(el, val) {
   activeBed = val;
   document.querySelectorAll('[data-bed]').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function filterType(el, val) {
+  activeType = val;
+  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('on'));
   el.classList.add('on');
   render();
 }
