@@ -1,0 +1,26 @@
+# Credenciales — NUNCA subir al repo
+.env
+
+# Datos generados automáticamente
+data/listings_section8.json
+logs/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp

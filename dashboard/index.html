@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Section 8 MLS Dashboard — Miami-Dade</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #0d0f14;
+  --surface:   #141720;
+  --surface2:  #1c2030;
+  --border:    rgba(255,255,255,0.07);
+  --border2:   rgba(255,255,255,0.13);
+  --text:      #e8eaf0;
+  --muted:     #6b7280;
+  --accent:    #4ade80;
+  --accent2:   #facc15;
+  --danger:    #f87171;
+  --info:      #60a5fa;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font-head);min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* ── Layout ── */
+.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{padding:2rem;overflow-x:hidden}
+
+/* ── Sidebar ── */
+.logo{display:flex;align-items:center;gap:10px;padding:0 .5rem}
+.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px;color:#0d0f14}
+.logo-text{font-size:14px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
+.logo-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+
+.nav-label{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:0 .5rem}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:rgba(74,222,128,.1);color:var(--accent)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+
+.sidebar-footer{margin-top:auto;padding:.75rem;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
+.sf-label{font-size:11px;color:var(--muted);margin-bottom:4px;font-family:var(--font-mono)}
+.sf-val{font-size:12px;color:var(--accent);font-family:var(--font-mono)}
+.sf-status{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:var(--muted)}
+.dot-live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── Header ── */
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.page-title{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.page-title span{color:var(--accent)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px;font-family:var(--font-mono)}
+.btn-refresh{display:flex;align-items:center;gap:6px;font-size:12px;font-family:var(--font-mono);padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:all .15s}
+.btn-refresh:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+
+/* ── Stats ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
+.stat-card.highlight{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04)}
+.stat-label{font-size:11px;color:var(--muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.stat-val.green{color:var(--accent)}
+.stat-val.yellow{color:var(--accent2)}
+.stat-val.red{color:var(--danger)}
+.stat-val.blue{color:var(--info)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--font-mono)}
+
+/* ── Filters ── */
+.filters{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
+.filter-input{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-head);font-size:13px;padding:8px 12px;height:36px;outline:none;transition:border-color .15s}
+.filter-input:focus{border-color:var(--accent)}
+.filter-input::placeholder{color:var(--muted)}
+#search{flex:1;min-width:200px}
+.filter-tag{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-head);transition:all .15s}
+.filter-tag:hover,.filter-tag.on{border-color:var(--accent);color:var(--accent);background:rgba(74,222,128,.08)}
+.filter-tag svg{width:12px;height:12px}
+
+/* ── Listings grid ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.listing-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
+.listing-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.listing-card.eligible{border-color:rgba(74,222,128,.25)}
+.listing-card.near{border-color:rgba(250,204,21,.2)}
+.listing-card.over{border-color:rgba(248,113,113,.15);opacity:.75}
+
+.card-photo{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.card-photo img{width:100%;height:100%;object-fit:cover}
+.card-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted)}
+.card-photo-placeholder svg{width:28px;height:28px;opacity:.4}
+.card-photo-placeholder span{font-size:11px;font-family:var(--font-mono)}
+.card-score{position:absolute;top:10px;right:10px;background:rgba(13,15,20,.85);border-radius:6px;padding:4px 8px;font-size:11px;font-family:var(--font-mono);font-weight:500;border:1px solid var(--border2)}
+.score-high{color:var(--accent)}
+.score-med{color:var(--accent2)}
+.score-low{color:var(--danger)}
+
+.card-body{padding:1rem}
+.card-address{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:2px}
+.card-city{font-size:12px;color:var(--muted);font-family:var(--font-mono);margin-bottom:10px}
+.card-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.card-price{font-size:22px;font-weight:700;letter-spacing:-.02em}
+.card-beds{font-size:12px;color:var(--muted);font-family:var(--font-mono)}
+.card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.badge{font-size:10px;font-family:var(--font-mono);padding:3px 8px;border-radius:5px;font-weight:500}
+.badge-ok{background:rgba(74,222,128,.12);color:var(--accent);border:1px solid rgba(74,222,128,.2)}
+.badge-warn{background:rgba(250,204,21,.1);color:var(--accent2);border:1px solid rgba(250,204,21,.2)}
+.badge-err{background:rgba(248,113,113,.1);color:var(--danger);border:1px solid rgba(248,113,113,.2)}
+.badge-blue{background:rgba(96,165,250,.1);color:var(--info);border:1px solid rgba(96,165,250,.2)}
+.badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+
+.card-fmr{background:var(--surface2);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
+.fmr-label{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.fmr-val{font-size:12px;font-family:var(--font-mono);font-weight:500}
+.fmr-ok{color:var(--accent)}
+.fmr-warn{color:var(--accent2)}
+.fmr-err{color:var(--danger)}
+
+.card-footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.card-agent{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
+.card-date{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+
+/* ── Empty / loading ── */
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
+.empty-state svg{width:48px;height:48px;opacity:.3;margin:0 auto 1rem;display:block}
+.empty-state p{font-size:14px;margin-bottom:.5rem}
+.empty-state small{font-family:var(--font-mono);font-size:11px}
+
+/* ── Demo banner ── */
+.demo-banner{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:.9rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:10px}
+.demo-banner svg{width:16px;height:16px;color:var(--info);flex-shrink:0;margin-top:2px}
+.demo-banner p{font-size:12px;color:var(--info);font-family:var(--font-mono);line-height:1.6}
+
+@media(max-width:768px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 3a1 1 0 0 1 1 1v4l3 1.5-.5 1L10 11V6a1 1 0 0 1-1-1z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Section 8<br>MLS Search</div>
+        <div class="logo-sub">Miami-Dade</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-label">Views</div>
+      <div class="nav-item active" onclick="setView('grid')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
+        All listings
+      </div>
+      <div class="nav-item" onclick="setView('eligible')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7"/></svg>
+        Eligible only
+      </div>
+      <div class="nav-item" onclick="setView('accepts')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
+        Historically accepts
+      </div>
+      <div class="nav-item" onclick="setView('highdemand')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M3 17l4-8 4 4 3-5 3 9"/></svg>
+        High-demand ZIPs
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-label">Filter by bedrooms</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem">
+        <button class="filter-tag on" data-bed="all" onclick="filterBed(this,'all')">All</button>
+        <button class="filter-tag" data-bed="1" onclick="filterBed(this,1)">1BR</button>
+        <button class="filter-tag" data-bed="2" onclick="filterBed(this,2)">2BR</button>
+        <button class="filter-tag" data-bed="3" onclick="filterBed(this,3)">3BR</button>
+        <button class="filter-tag" data-bed="4" onclick="filterBed(this,4)">4BR+</button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sf-label">Last updated</div>
+      <div class="sf-val" id="last-updated">—</div>
+      <div class="sf-status">
+        <span class="dot-live"></span>
+        Auto-refresh hourly
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">MLS Section <span>8</span> listings</h1>
+        <p class="page-sub">Miami-Dade · Filtered by 2024 Payment Standards · Spark API</p>
+      </div>
+      <button class="btn-refresh" onclick="loadData()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M4 10a6 6 0 1 0 1.5-4M4 6v4h4"/></svg>
+        Refresh now
+      </button>
+    </div>
+
+    <div class="demo-banner">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 9v5m0-7v.5"/></svg>
+      <p>
+        Demo mode — showing sample listings. To connect live data: run <strong>mls_section8_scraper.py</strong> and place <strong>listings_section8.json</strong> in the same folder as this file.
+      </p>
+    </div>
+
+    <div class="stats-row" id="stats-row">
+      <div class="stat-card highlight">
+        <div class="stat-label">Eligible listings</div>
+        <div class="stat-val green" id="s-eligible">—</div>
+        <div class="stat-sub">Within FMR limits</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Near FMR limit</div>
+        <div class="stat-val yellow" id="s-near">—</div>
+        <div class="stat-sub">Within 10% above FMR</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Historically accepts</div>
+        <div class="stat-val blue" id="s-accepts">—</div>
+        <div class="stat-sub">Mentioned in remarks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">High-demand ZIPs</div>
+        <div class="stat-val" id="s-demand">—</div>
+        <div class="stat-sub">Voucher holder concentration</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <input type="text" class="filter-input" id="search" placeholder="Search address, ZIP, city...">
+      <select class="filter-input" id="sort-by" onchange="renderCards()">
+        <option value="score">Sort: opportunity score</option>
+        <option value="price_asc">Sort: price low–high</option>
+        <option value="price_desc">Sort: price high–low</option>
+        <option value="recent">Sort: most recent</option>
+      </select>
+      <button class="filter-tag" id="toggle-accepts" onclick="toggleFilter('accepts')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7"/></svg>
+        Accepts vouchers
+      </button>
+      <button class="filter-tag" id="toggle-highdemand" onclick="toggleFilter('highdemand')">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M3 17l4-8 4 4 3-5 3 9"/></svg>
+        High-demand ZIP
+      </button>
+    </div>
+
+    <div class="grid" id="listings-grid"></div>
+  </main>
+</div>
+
+<script>
+const PAYMENT_STANDARDS = {
+  "default":{0:1320,1:1580,2:1920,3:2480,4:2850},
+  "33010":{0:1380,1:1650,2:2010,3:2590,4:2980},
+  "33012":{0:1380,1:1650,2:2010,3:2590,4:2980},
+  "33136":{0:1420,1:1700,2:2060,3:2650,4:3050},
+  "33147":{0:1350,1:1610,2:1960,3:2520,4:2900},
+  "33030":{0:1290,1:1540,2:1870,3:2410,4:2770},
+  "33054":{0:1310,1:1560,2:1900,3:2450,4:2820},
+  "33161":{0:1400,1:1680,2:2040,3:2620,4:3010},
+  "33183":{0:1450,1:1740,2:2110,3:2710,4:3120},
+  "33122":{0:1500,1:1800,2:2180,3:2800,4:3220},
+  "33160":{0:1600,1:1920,2:2320,3:2980,4:3430},
+};
+const HIGH_DEMAND = ["33010","33012","33013","33014","33015","33016","33018","33030","33031","33032","33033","33034","33054","33055","33056","33125","33126","33127","33128","33135","33136","33142","33147","33150","33161","33162","33167","33168","33169","33183","33184","33185","33186","33187","33189"];
+
+const DEMO_DATA = {
+  generated_at: new Date().toISOString(),
+  total_eligible: 18,
+  stats: {eligible:14,near_limit:4,over_limit:8,high_demand:11},
+  listings: [
+    {id:"A1001",address:"1240 W 49th St",city:"Hialeah",zip:"33012",price:1550,bedrooms:2,bathrooms:1,sqft:820,type:"Apartment",remarks:"Vouchers welcome. Great location near transit. Section 8 accepted. Well maintained unit with updated kitchen.",agent:"Maria Lopez",agent_email:"mlopez@realty.com",office:"Realty One Group",on_market:"2025-04-08",lat:25.868,lng:-80.305,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2010,max_allowed:2211,list_price:1550,gap:-460,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1002",address:"3321 NW 7th Ave",city:"Miami",zip:"33127",price:1200,bedrooms:1,bathrooms:1,sqft:640,type:"Apartment",remarks:"Clean unit, all utilities included. HCV welcome.",agent:"Carlos Ruiz",agent_email:"cruiz@miami.com",office:"Miami Realty Group",on_market:"2025-04-10",lat:25.789,lng:-80.212,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1580,max_allowed:1738,list_price:1200,gap:-380,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1003",address:"8901 SW 107th Ave",city:"Kendall",zip:"33183",price:1680,bedrooms:2,bathrooms:2,sqft:980,type:"Condo",remarks:"Spacious 2/2 in gated community. Good schools nearby.",agent:"Ana Fernandez",agent_email:"ana@kendallprop.com",office:"Kendall Properties",on_market:"2025-04-05",lat:25.685,lng:-80.412,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2110,max_allowed:2321,list_price:1680,gap:-430,historically_accepts:false,high_demand_zip:true,opportunity_score:80}},
+    {id:"A1004",address:"14200 NE 6th Ave",city:"North Miami",zip:"33161",price:1950,bedrooms:3,bathrooms:2,sqft:1150,type:"House",remarks:"3BR house, large yard. Owner open to housing voucher program.",agent:"James Williams",agent_email:"jwill@nmiami.com",office:"North Miami Realty",on_market:"2025-04-03",lat:25.895,lng:-80.171,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2620,max_allowed:2882,list_price:1950,gap:-670,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1005",address:"2450 SW 87th Ave",city:"Doral",zip:"33122",price:1750,bedrooms:1,bathrooms:1,sqft:750,type:"Apartment",remarks:"Modern apartment in Doral. No pets.",agent:"Sofia Morales",agent_email:"sofia@doralre.com",office:"Doral Real Estate",on_market:"2025-04-09",lat:25.819,lng:-80.352,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1800,max_allowed:1980,list_price:1750,gap:-50,historically_accepts:false,high_demand_zip:true,opportunity_score:74}},
+    {id:"A1006",address:"560 NW 131st St",city:"Opa-locka",zip:"33054",price:1280,bedrooms:2,bathrooms:1,sqft:780,type:"House",remarks:"Section 8 accepted. Previous tenant 4 years, no issues.",agent:"Robert Johnson",agent_email:"rjohnson@opalre.com",office:"Opa-locka Homes",on_market:"2025-03-28",lat:25.903,lng:-80.254,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1900,max_allowed:2090,list_price:1280,gap:-620,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1007",address:"1800 W Flagler St",city:"Miami",zip:"33135",price:1890,bedrooms:2,bathrooms:1,sqft:860,type:"Apartment",remarks:"Updated kitchen and bath. Close to Brickell.",agent:"Luis Gonzalez",agent_email:"lgonz@flaglerp.com",office:"Flagler Properties",on_market:"2025-04-11",lat:25.769,lng:-80.234,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1920,max_allowed:2112,list_price:1890,gap:-30,historically_accepts:false,high_demand_zip:true,opportunity_score:70}},
+    {id:"A1008",address:"22300 SW 112th Ave",city:"Homestead",zip:"33030",price:1450,bedrooms:3,bathrooms:2,sqft:1050,type:"House",remarks:"Family home. Vouchers accepted. Quiet neighborhood.",agent:"Patricia Suarez",agent_email:"psuarez@hmstd.com",office:"Homestead Realty",on_market:"2025-04-01",lat:25.473,lng:-80.476,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1870,max_allowed:2057,list_price:1450,gap:-420,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1009",address:"9100 NW 27th Ave",city:"Miami",zip:"33147",price:1580,bedrooms:2,bathrooms:1,sqft:790,type:"Duplex",remarks:"Quiet duplex. HACD approved landlord.",agent:"Miguel Torres",agent_email:"mtorres@nwmiami.com",office:"NW Miami Realty",on_market:"2025-03-30",lat:25.842,lng:-80.241,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1960,max_allowed:2156,list_price:1580,gap:-380,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+    {id:"A1010",address:"6700 Biscayne Blvd",city:"Miami",zip:"33138",price:2100,bedrooms:2,bathrooms:2,sqft:1020,type:"Condo",remarks:"Modern condo, pool and gym. Pet friendly.",agent:"Elena Castro",agent_email:"ecastro@biscayne.com",office:"Biscayne Bay Realty",on_market:"2025-04-07",lat:25.836,lng:-80.185,photo:"",section8:{eligible:false,status:"near_limit",payment_standard:1920,max_allowed:2112,list_price:2100,gap:180,historically_accepts:false,high_demand_zip:false,opportunity_score:30}},
+    {id:"A1011",address:"4500 Collins Ave",city:"Miami Beach",zip:"33140",price:2800,bedrooms:1,bathrooms:1,sqft:680,type:"Apartment",remarks:"Beachfront apartment. Short-term only.",agent:"David Kim",agent_email:"dkim@mbeach.com",office:"Miami Beach Luxury",on_market:"2025-04-12",lat:25.809,lng:-80.122,photo:"",section8:{eligible:false,status:"over_limit",payment_standard:1580,max_allowed:1738,list_price:2800,gap:1220,historically_accepts:false,high_demand_zip:false,opportunity_score:0}},
+    {id:"A1012",address:"750 NW 95th St",city:"Miami Shores",zip:"33150",price:1620,bedrooms:3,bathrooms:2,sqft:1100,type:"House",remarks:"Large 3BR, big backyard. Owner accepts HCV.",agent:"Carmen Diaz",agent_email:"cdiaz@shores.com",office:"Miami Shores Realty",on_market:"2025-03-25",lat:25.869,lng:-80.201,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2480,max_allowed:2728,list_price:1620,gap:-860,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
+  ]
+};
+
+let allListings = [];
+let activeView = 'grid';
+let activeBed = 'all';
+let filters = {accepts:false, highdemand:false};
+
+async function loadData() {
+  try {
+    const resp = await fetch('listings_section8.json?t=' + Date.now());
+    if (!resp.ok) throw new Error('not found');
+    const data = await resp.json();
+    allListings = data.listings;
+    document.getElementById('last-updated').textContent =
+      new Date(data.generated_at).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+    updateStats(data.stats);
+  } catch {
+    allListings = DEMO_DATA.listings;
+    document.getElementById('last-updated').textContent = 'Demo mode';
+    updateStats(DEMO_DATA.stats);
+  }
+  renderCards();
+}
+
+function updateStats(s) {
+  document.getElementById('s-eligible').textContent = s.eligible ?? '—';
+  document.getElementById('s-near').textContent     = s.near_limit ?? '—';
+  document.getElementById('s-accepts').textContent  = allListings.filter(l=>l.section8.historically_accepts).length;
+  document.getElementById('s-demand').textContent   = s.high_demand ?? '—';
+}
+
+function setView(v) {
+  activeView = v;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderCards();
+}
+
+function filterBed(el, val) {
+  activeBed = val;
+  document.querySelectorAll('[data-bed]').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderCards();
+}
+
+function toggleFilter(name) {
+  filters[name] = !filters[name];
+  document.getElementById('toggle-'+name).classList.toggle('on', filters[name]);
+  renderCards();
+}
+
+function renderCards() {
+  const q    = document.getElementById('search').value.toLowerCase();
+  const sort = document.getElementById('sort-by').value;
+
+  let data = [...allListings];
+
+  if (activeView === 'eligible')   data = data.filter(l=>l.section8.eligible);
+  if (activeView === 'accepts')    data = data.filter(l=>l.section8.historically_accepts);
+  if (activeView === 'highdemand') data = data.filter(l=>l.section8.high_demand_zip);
+  if (activeBed !== 'all')         data = data.filter(l=> activeBed==4 ? l.bedrooms>=4 : l.bedrooms==activeBed);
+  if (filters.accepts)    data = data.filter(l=>l.section8.historically_accepts);
+  if (filters.highdemand) data = data.filter(l=>l.section8.high_demand_zip);
+  if (q) data = data.filter(l=>
+    (l.address||'').toLowerCase().includes(q) ||
+    (l.city||'').toLowerCase().includes(q) ||
+    (l.zip||'').includes(q)
+  );
+
+  if (sort==='score')       data.sort((a,b)=>b.section8.opportunity_score-a.section8.opportunity_score);
+  else if (sort==='price_asc')  data.sort((a,b)=>a.price-b.price);
+  else if (sort==='price_desc') data.sort((a,b)=>b.price-a.price);
+  else if (sort==='recent') data.sort((a,b)=>new Date(b.on_market)-new Date(a.on_market));
+
+  const grid = document.getElementById('listings-grid');
+
+  if (!data.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 20 20"><circle cx="8" cy="8" r="5"/><path d="m13 13 4 4"/></svg>
+      <p>No listings match your filters</p>
+      <small>Try adjusting the search or filter criteria</small>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = data.map(l=>{
+    const s = l.section8;
+    const cardClass = s.status==='eligible'?'eligible':s.status==='near_limit'?'near':'over';
+    const scoreClass = s.opportunity_score>=70?'score-high':s.opportunity_score>=40?'score-med':'score-low';
+    const fmrClass = s.status==='eligible'?'fmr-ok':s.status==='near_limit'?'fmr-warn':'fmr-err';
+    const gapText = s.gap<=0 ? `$${Math.abs(s.gap)} under FMR` : `$${s.gap} over FMR`;
+    const pctFmr = Math.round((l.price/s.payment_standard)*100);
+
+    let badges = '';
+    if (s.status==='eligible')        badges += `<span class="badge badge-ok">Within FMR</span>`;
+    else if (s.status==='near_limit') badges += `<span class="badge badge-warn">Near limit</span>`;
+    else                              badges += `<span class="badge badge-err">Over FMR</span>`;
+    if (s.historically_accepts) badges += `<span class="badge badge-blue">Accepts vouchers</span>`;
+    if (s.high_demand_zip)      badges += `<span class="badge badge-gray">High demand ZIP</span>`;
+
+    const photo = l.photo
+      ? `<img src="${l.photo}" alt="${l.address}" loading="lazy">`
+      : `<div class="card-photo-placeholder"><svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="2"/><circle cx="7" cy="9" r="1.5"/><path d="m2 14 4-4 3 3 3-3 6 6"/></svg><span>No photo</span></div>`;
+
+    const onMarket = l.on_market ? new Date(l.on_market).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—';
+
+    return `<div class="listing-card ${cardClass}">
+      <div class="card-photo">
+        ${photo}
+        <span class="card-score ${scoreClass}">${s.opportunity_score}/100</span>
+      </div>
+      <div class="card-body">
+        <div class="card-address">${l.address}</div>
+        <div class="card-city">${l.city}, FL ${l.zip}</div>
+        <div class="card-price-row">
+          <span class="card-price">$${l.price.toLocaleString()}/mo</span>
+          <span class="card-beds">${l.bedrooms}BR · ${l.bathrooms}BA${l.sqft ? ' · ' + l.sqft.toLocaleString() + ' sqft' : ''}</span>
+        </div>
+        <div class="card-badges">${badges}</div>
+        <div class="card-fmr">
+          <span class="fmr-label">FMR: $${s.payment_standard.toLocaleString()} · ${pctFmr}% used</span>
+          <span class="fmr-val ${fmrClass}">${gapText}</span>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span class="card-agent">${l.agent||'—'}</span>
+        <span class="card-date">Listed ${onMarket}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('search').addEventListener('input', renderCards);
+
+loadData();
+setInterval(loadData, 60*60*1000); // refresca cada hora
+</script>
+</body>
+</html>
