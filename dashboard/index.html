@@ -1,631 +1,1403 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Section 8 MLS Dashboard — Miami-Dade</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<style>
-:root {
-  --bg:        #0d0f14;
-  --surface:   #141720;
-  --surface2:  #1c2030;
-  --border:    rgba(255,255,255,0.07);
-  --border2:   rgba(255,255,255,0.13);
-  --text:      #e8eaf0;
-  --muted:     #6b7280;
-  --accent:    #4ade80;
-  --accent2:   #facc15;
-  --danger:    #f87171;
-  --info:      #60a5fa;
-  --font-head: 'Syne', sans-serif;
-  --font-mono: 'DM Mono', monospace;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--text);font-family:var(--font-head);min-height:100vh}
-a{color:inherit;text-decoration:none}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Section 8 MLS Dashboard — Miami-Dade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Outfit:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    :root {
+      --bg: #f4f2ff;
+      --surface: #ffffff;
+      --surface2: #ede9ff;
+      --border: rgba(110, 90, 200, 0.10);
+      --border2: rgba(110, 90, 200, 0.20);
+      --text: #1e1a3c;
+      --muted: #8e8aaa;
+      --accent: #5ec490;
+      --accent2: #e7a83a;
+      --danger: #e07070;
+      --info: #6aa4e8;
+      --font-head: 'Outfit', sans-serif;
+      --font-mono: 'Nunito', sans-serif;
+    }
 
-/* ── Layout ── */
-.shell{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
-.sidebar{background:var(--surface);border-right:1px solid var(--border);padding:1.5rem 1rem;display:flex;flex-direction:column;gap:1.5rem;position:sticky;top:0;height:100vh;overflow-y:auto}
-.main{padding:2rem;overflow-x:hidden}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0
+    }
 
-/* ── Sidebar ── */
-.logo{display:flex;align-items:center;gap:10px;padding:0 .5rem}
-.logo-mark{width:32px;height:32px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
-.logo-mark svg{width:18px;height:18px;color:#0d0f14}
-.logo-text{font-size:14px;font-weight:700;letter-spacing:-.01em;line-height:1.2}
-.logo-sub{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-head);
+      min-height: 100vh;
+      background-image: radial-gradient(ellipse at top left, #e8e2ff 0%, #f4f2ff 55%, #e6f4f1 100%)
+    }
 
-.nav-label{font-size:10px;font-weight:500;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;padding:0 .5rem}
-.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:13px;cursor:pointer;color:var(--muted);transition:all .15s}
-.nav-item:hover{background:var(--surface2);color:var(--text)}
-.nav-item.active{background:rgba(74,222,128,.1);color:var(--accent)}
-.nav-item svg{width:16px;height:16px;flex-shrink:0}
+    a {
+      color: inherit;
+      text-decoration: none
+    }
 
-.sidebar-footer{margin-top:auto;padding:.75rem;background:var(--surface2);border-radius:10px;border:1px solid var(--border)}
-.sf-label{font-size:11px;color:var(--muted);margin-bottom:4px;font-family:var(--font-mono)}
-.sf-val{font-size:12px;color:var(--accent);font-family:var(--font-mono)}
-.sf-status{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:var(--muted)}
-.dot-live{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    /* ── Layout ── */
+    .shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh
+    }
 
-/* ── Header ── */
-.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
-.page-title{font-size:26px;font-weight:700;letter-spacing:-.02em}
-.page-title span{color:var(--accent)}
-.page-sub{font-size:13px;color:var(--muted);margin-top:4px;font-family:var(--font-mono)}
-.btn-refresh{display:flex;align-items:center;gap:6px;font-size:12px;font-family:var(--font-mono);padding:8px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);cursor:pointer;transition:all .15s}
-.btn-refresh:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent)}
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 20px rgba(110, 90, 200, 0.06)
+    }
 
-/* ── Stats ── */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:2rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem}
-.stat-card.highlight{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04)}
-.stat-label{font-size:11px;color:var(--muted);font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
-.stat-val{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1}
-.stat-val.green{color:var(--accent)}
-.stat-val.yellow{color:var(--accent2)}
-.stat-val.red{color:var(--danger)}
-.stat-val.blue{color:var(--info)}
-.stat-sub{font-size:11px;color:var(--muted);margin-top:6px;font-family:var(--font-mono)}
+    .main {
+      padding: 2rem;
+      overflow-x: hidden
+    }
 
-/* ── Filters ── */
-.filters{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center}
-.filter-input{background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font-head);font-size:13px;padding:8px 12px;height:36px;outline:none;transition:border-color .15s}
-.filter-input:focus{border-color:var(--accent)}
-.filter-input::placeholder{color:var(--muted)}
-#search{flex:1;min-width:200px}
-.filter-tag{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-head);transition:all .15s}
-.filter-tag:hover,.filter-tag.on{border-color:var(--accent);color:var(--accent);background:rgba(74,222,128,.08)}
-.filter-tag svg{width:12px;height:12px}
+    /* ── Sidebar ── */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 .5rem
+    }
 
-/* ── Listings grid ── */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
-.listing-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s;cursor:pointer}
-.listing-card:hover{border-color:var(--border2);transform:translateY(-2px)}
-.listing-card.eligible{border-color:rgba(74,222,128,.25)}
-.listing-card.near{border-color:rgba(250,204,21,.2)}
-.listing-card.over{border-color:rgba(248,113,113,.15);opacity:.75}
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #a78bfa, #5ec490);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(167, 139, 250, 0.35)
+    }
 
-.card-photo{height:160px;background:var(--surface2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
-.card-photo img{width:100%;height:100%;object-fit:cover}
-.card-photo-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted)}
-.card-photo-placeholder svg{width:28px;height:28px;opacity:.4}
-.card-photo-placeholder span{font-size:11px;font-family:var(--font-mono)}
-.card-score{position:absolute;top:10px;right:10px;background:rgba(13,15,20,.85);border-radius:6px;padding:4px 8px;font-size:11px;font-family:var(--font-mono);font-weight:500;border:1px solid var(--border2)}
-.score-high{color:var(--accent)}
-.score-med{color:var(--accent2)}
-.score-low{color:var(--danger)}
+    .logo-mark svg {
+      width: 18px;
+      height: 18px;
+      color: #fff
+    }
 
-.card-body{padding:1rem}
-.card-address{font-size:14px;font-weight:700;letter-spacing:-.01em;margin-bottom:2px}
-.card-city{font-size:12px;color:var(--muted);font-family:var(--font-mono);margin-bottom:10px}
-.card-price-row{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
-.card-price{font-size:22px;font-weight:700;letter-spacing:-.02em}
-.card-beds{font-size:12px;color:var(--muted);font-family:var(--font-mono)}
-.card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.badge{font-size:10px;font-family:var(--font-mono);padding:3px 8px;border-radius:5px;font-weight:500}
-.badge-ok{background:rgba(74,222,128,.12);color:var(--accent);border:1px solid rgba(74,222,128,.2)}
-.badge-warn{background:rgba(250,204,21,.1);color:var(--accent2);border:1px solid rgba(250,204,21,.2)}
-.badge-err{background:rgba(248,113,113,.1);color:var(--danger);border:1px solid rgba(248,113,113,.2)}
-.badge-blue{background:rgba(96,165,250,.1);color:var(--info);border:1px solid rgba(96,165,250,.2)}
-.badge-gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+    .logo-text {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      line-height: 1.2
+    }
 
-.card-fmr{background:var(--surface2);border-radius:8px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center}
-.fmr-label{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
-.fmr-val{font-size:12px;font-family:var(--font-mono);font-weight:500}
-.fmr-ok{color:var(--accent)}
-.fmr-warn{color:var(--accent2)}
-.fmr-err{color:var(--danger)}
+    .logo-sub {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
 
-.card-footer{padding:.75rem 1rem;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.card-agent{font-size:11px;color:var(--muted);font-family:var(--font-mono)}
-.card-date{font-size:10px;color:var(--muted);font-family:var(--font-mono)}
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 0 .5rem
+    }
 
-/* ── Empty / loading ── */
-.empty-state{text-align:center;padding:4rem 2rem;color:var(--muted)}
-.empty-state svg{width:48px;height:48px;opacity:.3;margin:0 auto 1rem;display:block}
-.empty-state p{font-size:14px;margin-bottom:.5rem}
-.empty-state small{font-family:var(--font-mono);font-size:11px}
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all .15s
+    }
 
-/* ── Demo banner ── */
-.demo-banner{background:rgba(96,165,250,.08);border:1px solid rgba(96,165,250,.2);border-radius:10px;padding:.9rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:flex-start;gap:10px}
-.demo-banner svg{width:16px;height:16px;color:var(--info);flex-shrink:0;margin-top:2px}
-.demo-banner p{font-size:12px;color:var(--info);font-family:var(--font-mono);line-height:1.6}
+    .nav-item:hover {
+      background: var(--surface2);
+      color: var(--text)
+    }
 
-/* ── Map ── */
-#map-container {
-  display: none;
-  height: calc(100vh - 290px);
-  min-height: 500px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  position: relative;
-}
+    .nav-item.active {
+      background: linear-gradient(90deg, rgba(94, 196, 144, .15), rgba(167, 139, 250, .10));
+      color: #6d4fc2;
+      font-weight: 600;
+      border-left: 3px solid #a78bfa;
+      padding-left: 7px
+    }
 
-/* Leaflet dark theme overrides */
-.leaflet-container { background: #0d0f14; font-family: var(--font-head); }
-.leaflet-control-zoom a { background: var(--surface) !important; color: var(--text) !important; border-color: var(--border2) !important; }
-.leaflet-control-zoom a:hover { background: var(--surface2) !important; color: var(--accent) !important; }
-.leaflet-control-attribution { background: rgba(13,15,20,.75) !important; color: var(--muted) !important; font-size: 10px !important; }
-.leaflet-control-attribution a { color: var(--muted) !important; }
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0
+    }
 
-/* Popup dark theme */
-.leaflet-popup-content-wrapper {
-  background: var(--surface) !important;
-  border: 1px solid var(--border2) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,.55) !important;
-  padding: 0 !important;
-}
-.leaflet-popup-content { margin: 0 !important; }
-.leaflet-popup-tip { background: var(--surface) !important; }
-.leaflet-popup-close-button { color: var(--muted) !important; top: 10px !important; right: 12px !important; font-size: 18px !important; }
-.leaflet-popup-close-button:hover { color: var(--text) !important; }
+    .sidebar-footer {
+      margin-top: auto;
+      padding: .75rem;
+      background: linear-gradient(135deg, #ede9ff, #e6f4f1);
+      border-radius: 10px;
+      border: 1px solid var(--border)
+    }
 
-/* Popup card */
-.map-popup { padding: 1rem; min-width: 220px; max-width: 270px; }
-.mp-address { font-size: 13px; font-weight: 700; letter-spacing: -.01em; color: var(--text); margin-bottom: 2px; }
-.mp-city { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 10px; }
-.mp-price { font-size: 20px; font-weight: 700; letter-spacing: -.02em; color: var(--text); margin-bottom: 3px; }
-.mp-beds { font-size: 11px; color: var(--muted); font-family: var(--font-mono); margin-bottom: 10px; }
-.mp-score-row { display: flex; align-items: center; justify-content: space-between; background: var(--surface2); border-radius: 8px; padding: 7px 10px; margin-bottom: 8px; }
-.mp-score-label { font-size: 10px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: .06em; }
-.mp-score-val { font-size: 15px; font-weight: 700; font-family: var(--font-mono); }
-.mp-fmr { font-size: 11px; font-family: var(--font-mono); color: var(--muted); margin-bottom: 8px; }
-.mp-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
-.mp-meta { font-size: 10px; color: var(--muted); font-family: var(--font-mono); margin-top: 8px; }
+    .sf-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      font-family: var(--font-mono)
+    }
 
-/* Map overlay controls */
-.map-count {
-  position: absolute; top: 12px; left: 12px; z-index: 1000;
-  background: var(--surface); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 6px 12px;
-  font-size: 12px; font-family: var(--font-mono); color: var(--muted);
-  pointer-events: none;
-}
-.map-count strong { color: var(--accent); }
+    .sf-val {
+      font-size: 12px;
+      color: var(--accent);
+      font-family: var(--font-mono)
+    }
 
-.map-legend {
-  position: absolute; bottom: 20px; right: 12px; z-index: 1000;
-  background: var(--surface); border: 1px solid var(--border2);
-  border-radius: 10px; padding: .75rem 1rem;
-  display: flex; flex-direction: column; gap: 6px;
-}
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-.legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(13,15,20,.6); }
+    .sf-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: var(--muted)
+    }
 
-/* Fullscreen Map Toggle */
-.btn-expand-map {
-  position: absolute; top: 12px; right: 12px; z-index: 1000;
-  background: var(--surface); border: 1px solid var(--border2);
-  border-radius: 8px; padding: 6px 12px;
-  font-size: 12px; font-family: var(--font-mono); color: var(--text);
-  cursor: pointer; display: flex; align-items: center; gap: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-  transition: all .15s;
-}
-.btn-expand-map:hover {
-  background: var(--surface2); color: var(--accent); border-color: var(--accent);
-}
-.btn-expand-map svg { width: 14px; height: 14px; }
-.map-fullscreen {
-  position: fixed !important;
-  top: 0 !important; left: 0 !important;
-  width: 100vw !important; height: 100vh !important;
-  z-index: 9999 !important;
-  border-radius: 0 !important;
-  border: none !important;
-}
-/* Mobile Toggle */
-.mobile-view-toggle {
-  display: none;
-  position: fixed;
-  bottom: 24px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  color: var(--text);
-  padding: 10px 20px;
-  border-radius: 30px;
-  font-family: var(--font-head);
-  font-weight: 500;
-  font-size: 13px;
-  z-index: 1000;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-.mobile-view-toggle svg { width: 16px; height: 16px; color: var(--accent); }
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite
+    }
 
-/* Sidebar off-canvas overlay */
-.sidebar-overlay {
-  display: none;
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  background: rgba(13,15,20,0.8); z-index: 9998;
-}
-.sidebar-overlay.open { display: block; }
+    @keyframes pulse {
 
-@media(max-width:768px){
-  .shell{grid-template-columns:1fr}
-  .sidebar{
-    display:flex; position:fixed; top:0; left:-320px; width:280px;
-    z-index:9999; transition:transform 0.3s ease; border-right:none;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
-  }
-  .sidebar.open { transform: translateX(320px); }
-  #btn-mobile-filter, #btn-close-sidebar { display: flex !important; }
-  .stats-row{grid-template-columns:repeat(2,1fr)}
-  #map-container{height:60vh;min-height:380px}
-  .mobile-view-toggle { display: flex; }
-}
-</style>
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .4
+      }
+    }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem
+    }
+
+    .page-title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -.02em
+    }
+
+    .page-title span {
+      color: var(--accent)
+    }
+
+    .page-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-family: var(--font-mono)
+    }
+
+    .btn-refresh {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all .15s
+    }
+
+    .btn-refresh:hover {
+      background: var(--surface2);
+      border-color: var(--accent);
+      color: var(--accent)
+    }
+
+    /* ── Stats ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 2rem
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: 0 2px 12px rgba(110, 90, 200, 0.07);
+      transition: transform .2s, box-shadow .2s
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(110, 90, 200, 0.12)
+    }
+
+    .stat-card.highlight {
+      border-color: rgba(94, 196, 144, .4);
+      background: linear-gradient(135deg, rgba(94, 196, 144, .08), rgba(94, 196, 144, .02))
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 8px
+    }
+
+    .stat-val {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      line-height: 1
+    }
+
+    .stat-val.green {
+      color: var(--accent)
+    }
+
+    .stat-val.yellow {
+      color: var(--accent2)
+    }
+
+    .stat-val.red {
+      color: var(--danger)
+    }
+
+    .stat-val.blue {
+      color: var(--info)
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      font-family: var(--font-mono)
+    }
+
+    /* ── Filters ── */
+    .filters {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .filter-input {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: var(--font-head);
+      font-size: 13px;
+      padding: 8px 12px;
+      height: 36px;
+      outline: none;
+      transition: all .15s;
+      box-shadow: 0 1px 4px rgba(110, 90, 200, 0.07)
+    }
+
+    .filter-input:focus {
+      border-color: #a78bfa;
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.18)
+    }
+
+    .filter-input::placeholder {
+      color: var(--muted)
+    }
+
+    #search {
+      flex: 1;
+      min-width: 200px
+    }
+
+    .filter-tag {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      cursor: pointer;
+      font-family: var(--font-head);
+      transition: all .15s;
+      box-shadow: 0 1px 4px rgba(110, 90, 200, 0.06)
+    }
+
+    .filter-tag:hover,
+    .filter-tag.on {
+      border-color: #a78bfa;
+      color: #6d4fc2;
+      background: rgba(167, 139, 250, .12);
+      box-shadow: 0 2px 8px rgba(167, 139, 250, .18)
+    }
+
+    .filter-tag svg {
+      width: 12px;
+      height: 12px
+    }
+
+    /* ── Listings grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 14px
+    }
+
+    .listing-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all .22s cubic-bezier(.34, 1.56, .64, 1);
+      cursor: pointer;
+      box-shadow: 0 2px 14px rgba(110, 90, 200, 0.07)
+    }
+
+    .listing-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-4px);
+      box-shadow: 0 10px 30px rgba(110, 90, 200, 0.14)
+    }
+
+    .listing-card.eligible {
+      border-color: rgba(94, 196, 144, .4);
+      background: linear-gradient(180deg, rgba(94, 196, 144, .04) 0%, #fff 60%)
+    }
+
+    .listing-card.near {
+      border-color: rgba(231, 168, 58, .35);
+      background: linear-gradient(180deg, rgba(231, 168, 58, .05) 0%, #fff 60%)
+    }
+
+    .listing-card.over {
+      border-color: rgba(224, 112, 112, .25);
+      opacity: .85;
+      background: linear-gradient(180deg, rgba(224, 112, 112, .04) 0%, #fff 60%)
+    }
+
+    .card-photo {
+      height: 160px;
+      background: linear-gradient(135deg, #ede9ff, #e6f4f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative
+    }
+
+    .card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .card-photo-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted)
+    }
+
+    .card-photo-placeholder svg {
+      width: 28px;
+      height: 28px;
+      opacity: .4
+    }
+
+    .card-photo-placeholder span {
+      font-size: 11px;
+      font-family: var(--font-mono)
+    }
+
+    .card-score {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, .92);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      border: 1px solid rgba(110, 90, 200, 0.15);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(110, 90, 200, 0.10)
+    }
+
+    .score-high {
+      color: var(--accent)
+    }
+
+    .score-med {
+      color: var(--accent2)
+    }
+
+    .score-low {
+      color: var(--danger)
+    }
+
+    .card-body {
+      padding: 1rem
+    }
+
+    .card-address {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      margin-bottom: 2px
+    }
+
+    .card-city {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      margin-bottom: 10px
+    }
+
+    .card-price-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 10px
+    }
+
+    .card-price {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -.02em
+    }
+
+    .card-beds {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
+
+    .card-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px
+    }
+
+    .badge {
+      font-size: 10px;
+      font-family: var(--font-mono);
+      padding: 3px 8px;
+      border-radius: 5px;
+      font-weight: 500
+    }
+
+    .badge-ok {
+      background: #dcf5eb;
+      color: #2e9c6a;
+      border: 1px solid #b4e8d1
+    }
+
+    .badge-warn {
+      background: #fdf2dc;
+      color: #c07b20;
+      border: 1px solid #f5d99a
+    }
+
+    .badge-err {
+      background: #fce8e8;
+      color: #c04040;
+      border: 1px solid #f0b8b8
+    }
+
+    .badge-blue {
+      background: #deeeff;
+      color: #3070c0;
+      border: 1px solid #b0d4f5
+    }
+
+    .badge-gray {
+      background: var(--surface2);
+      color: var(--muted);
+      border: 1px solid var(--border)
+    }
+
+    .card-fmr {
+      background: #f4f2ff;
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid rgba(110, 90, 200, 0.08)
+    }
+
+    .fmr-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
+
+    .fmr-val {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      font-weight: 500
+    }
+
+    .fmr-ok {
+      color: var(--accent)
+    }
+
+    .fmr-warn {
+      color: var(--accent2)
+    }
+
+    .fmr-err {
+      color: var(--danger)
+    }
+
+    .card-footer {
+      padding: .75rem 1rem;
+      border-top: 1px solid rgba(110, 90, 200, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #faf9ff
+    }
+
+    .card-agent {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
+
+    .card-date {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: var(--font-mono)
+    }
+
+    /* ── Empty / loading ── */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--muted)
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      opacity: .3;
+      margin: 0 auto 1rem;
+      display: block
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      margin-bottom: .5rem
+    }
+
+    .empty-state small {
+      font-family: var(--font-mono);
+      font-size: 11px
+    }
+
+    /* ── Demo banner ── */
+    .demo-banner {
+      background: #deeeff;
+      border: 1px solid #b0d4f5;
+      border-radius: 12px;
+      padding: .9rem 1.25rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px
+    }
+
+    .demo-banner svg {
+      width: 16px;
+      height: 16px;
+      color: #3070c0;
+      flex-shrink: 0;
+      margin-top: 2px
+    }
+
+    .demo-banner p {
+      font-size: 12px;
+      color: #3070c0;
+      font-family: var(--font-mono);
+      line-height: 1.6
+    }
+
+    /* ── Map ── */
+    #map-container {
+      display: none;
+      height: calc(100vh - 290px);
+      min-height: 500px;
+      border-radius: 14px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* Leaflet dark theme overrides */
+    .leaflet-container {
+      background: #0d0f14;
+      font-family: var(--font-head);
+    }
+
+    .leaflet-control-zoom a {
+      background: #1c2030 !important;
+      color: #e8eaf0 !important;
+      border-color: rgba(255, 255, 255, 0.13) !important;
+    }
+
+    .leaflet-control-zoom a:hover {
+      background: #141720 !important;
+      color: #5ec490 !important;
+    }
+
+    .leaflet-control-attribution {
+      background: rgba(13, 15, 20, .75) !important;
+      color: #6b7280 !important;
+      font-size: 10px !important;
+    }
+
+    .leaflet-control-attribution a {
+      color: #6b7280 !important;
+    }
+
+    /* Popup dark theme */
+    .leaflet-popup-content-wrapper {
+      background: #141720 !important;
+      border: 1px solid rgba(255, 255, 255, 0.13) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .55) !important;
+      padding: 0 !important;
+    }
+
+    .leaflet-popup-content {
+      margin: 0 !important;
+    }
+
+    .leaflet-popup-tip {
+      background: #141720 !important;
+    }
+
+    .leaflet-popup-close-button {
+      color: #6b7280 !important;
+      top: 10px !important;
+      right: 12px !important;
+      font-size: 18px !important;
+    }
+
+    .leaflet-popup-close-button:hover {
+      color: #e8eaf0 !important;
+    }
+
+    /* Popup card */
+    .map-popup {
+      padding: 1rem;
+      min-width: 220px;
+      max-width: 270px;
+    }
+
+    .mp-address {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      color: #e8eaf0;
+      margin-bottom: 2px;
+    }
+
+    .mp-city {
+      font-size: 11px;
+      color: #6b7280;
+      font-family: var(--font-mono);
+      margin-bottom: 10px;
+    }
+
+    .mp-price {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: #e8eaf0;
+      margin-bottom: 3px;
+    }
+
+    .mp-beds {
+      font-size: 11px;
+      color: #6b7280;
+      font-family: var(--font-mono);
+      margin-bottom: 10px;
+    }
+
+    .mp-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1c2030;
+      border-radius: 8px;
+      padding: 7px 10px;
+      margin-bottom: 8px;
+    }
+
+    .mp-score-label {
+      font-size: 10px;
+      color: #6b7280;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .mp-score-val {
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .mp-fmr {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #6b7280;
+      margin-bottom: 8px;
+    }
+
+    .mp-badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .mp-meta {
+      font-size: 10px;
+      color: #6b7280;
+      font-family: var(--font-mono);
+      margin-top: 8px;
+    }
+
+    /* Map overlay controls */
+    .map-count {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 1000;
+      background: #141720;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: #6b7280;
+      pointer-events: none;
+    }
+
+    .map-count strong {
+      color: #5ec490;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 20px;
+      right: 12px;
+      z-index: 1000;
+      background: #141720;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 10px;
+      padding: .75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      color: #6b7280;
+      font-family: var(--font-mono);
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 2px solid rgba(13, 15, 20, .6);
+    }
+
+    /* Fullscreen Map Toggle */
+    .btn-expand-map {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 1000;
+      background: #141720;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: #e8eaf0;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+      transition: all .15s;
+    }
+
+    .btn-expand-map:hover {
+      background: #1c2030;
+      color: #5ec490;
+      border-color: #5ec490;
+    }
+
+    .btn-expand-map svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .map-fullscreen {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      z-index: 9999 !important;
+      border-radius: 0 !important;
+      border: none !important;
+    }
+
+    /* Mobile Toggle */
+    .mobile-view-toggle {
+      display: none;
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #a78bfa, #5ec490);
+      border: none;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-family: var(--font-head);
+      font-weight: 600;
+      font-size: 13px;
+      z-index: 1000;
+      box-shadow: 0 8px 24px rgba(167, 139, 250, 0.45);
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .mobile-view-toggle svg {
+      width: 16px;
+      height: 16px;
+      color: #fff;
+    }
+
+    /* Sidebar off-canvas overlay */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(30, 26, 60, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 9998;
+    }
+
+    .sidebar-overlay.open {
+      display: block;
+    }
+
+    @media(max-width:768px) {
+      .shell {
+        grid-template-columns: 1fr
+      }
+
+      .sidebar {
+        display: flex;
+        position: fixed;
+        top: 0;
+        left: -320px;
+        width: 280px;
+        z-index: 9999;
+        transition: transform 0.3s ease;
+        border-right: none;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+      }
+
+      .sidebar.open {
+        transform: translateX(320px);
+      }
+
+      #btn-mobile-filter,
+      #btn-close-sidebar {
+        display: flex !important;
+      }
+
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      #map-container {
+        height: 60vh;
+        min-height: 380px
+      }
+
+      .mobile-view-toggle {
+        display: flex;
+      }
+    }
+  </style>
 </head>
+
 <body>
-<div class="shell">
+  <div class="shell">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo" style="display:flex;align-items:center;width:100%">
-      <div class="logo-mark">
-        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 3a1 1 0 0 1 1 1v4l3 1.5-.5 1L10 11V6a1 1 0 0 1-1-1z"/></svg>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="logo" style="display:flex;align-items:center;width:100%">
+        <div class="logo-mark">
+          <svg viewBox="0 0 20 20" fill="currentColor">
+            <path d="M10 2a8 8 0 1 0 0 16A8 8 0 0 0 10 2zm0 3a1 1 0 0 1 1 1v4l3 1.5-.5 1L10 11V6a1 1 0 0 1-1-1z" />
+          </svg>
+        </div>
+        <div style="flex:1">
+          <div class="logo-text">Section 8<br>MLS Search</div>
+          <div class="logo-sub">Miami-Dade</div>
+        </div>
+        <button onclick="toggleSidebar()"
+          style="background:none;border:none;color:var(--muted);cursor:pointer;display:none;padding:4px"
+          id="btn-close-sidebar">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      <div style="flex:1">
-        <div class="logo-text">Section 8<br>MLS Search</div>
-        <div class="logo-sub">Miami-Dade</div>
-      </div>
-      <button onclick="toggleSidebar()" style="background:none;border:none;color:var(--muted);cursor:pointer;display:none;padding:4px" id="btn-close-sidebar">
-        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-      </button>
-    </div>
 
-    <div>
-      <div class="nav-label" style="margin-bottom:.5rem">Display</div>
-      <div class="nav-item active" id="nav-cards" onclick="setDisplayMode('cards', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/></svg>
-        Cards
-      </div>
-      <div class="nav-item" id="nav-map" onclick="setDisplayMode('map', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/></svg>
-        Map view
-      </div>
-    </div>
-
-    <div>
-      <div class="nav-label" style="margin-bottom:.5rem">Filter</div>
-      <div class="nav-item active" id="nav-all" onclick="setFilter('all', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M3 5h14M6 10h8M9 15h2"/></svg>
-        All listings
-      </div>
-      <div class="nav-item" id="nav-eligible" onclick="setFilter('eligible', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7"/></svg>
-        Eligible only
-      </div>
-      <div class="nav-item" id="nav-accepts" onclick="setFilter('accepts', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7"/><path d="M10 6v4l3 2"/></svg>
-        Historically accepts
-      </div>
-      <div class="nav-item" id="nav-highdemand" onclick="setFilter('highdemand', this)">
-        <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M3 17l4-8 4 4 3-5 3 9"/></svg>
-        High-demand ZIPs
-      </div>
-    </div>
-
-    <div>
-      <div class="nav-label" style="margin-bottom:.5rem">Property Type</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem;margin-bottom:1.5rem">
-        <button class="filter-tag on" data-type="all" onclick="filterType(this,'all')">All</button>
-        <button class="filter-tag" data-type="House" onclick="filterType(this,'House')">House</button>
-        <button class="filter-tag" data-type="Condo" onclick="filterType(this,'Condo')">Apt/Condo</button>
-        <button class="filter-tag" data-type="Duplex" onclick="filterType(this,'Duplex')">Duplex</button>
-      </div>
-    </div>
-
-    <div>
-      <div class="nav-label" style="margin-bottom:.5rem">Bedrooms</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem">
-        <button class="filter-tag on" data-bed="all" onclick="filterBed(this,'all')">All</button>
-        <button class="filter-tag" data-bed="1" onclick="filterBed(this,1)">1BR</button>
-        <button class="filter-tag" data-bed="2" onclick="filterBed(this,2)">2BR</button>
-        <button class="filter-tag" data-bed="3" onclick="filterBed(this,3)">3BR</button>
-        <button class="filter-tag" data-bed="4" onclick="filterBed(this,4)">4BR+</button>
-      </div>
-    </div>
-
-    <div class="sidebar-footer">
-      <div class="sf-label">Last updated</div>
-      <div class="sf-val" id="last-updated">—</div>
-      <div class="sf-status">
-        <span class="dot-live"></span>
-        Auto-refresh hourly
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <!-- Sidebar overlay -->
-  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-  <main class="main">
-    <div class="page-header">
       <div>
-        <h1 class="page-title">MLS Section <span>8</span> listings</h1>
-        <p class="page-sub">Miami-Dade · Filtered by 2024 Payment Standards · Spark API</p>
+        <div class="nav-label" style="margin-bottom:.5rem">Display</div>
+        <div class="nav-item active" id="nav-cards" onclick="setDisplayMode('cards', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <rect x="3" y="3" width="6" height="6" rx="1" />
+            <rect x="11" y="3" width="6" height="6" rx="1" />
+            <rect x="3" y="11" width="6" height="6" rx="1" />
+            <rect x="11" y="11" width="6" height="6" rx="1" />
+          </svg>
+          Cards
+        </div>
+        <div class="nav-item" id="nav-map" onclick="setDisplayMode('map', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <path
+              d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z" />
+          </svg>
+          Map view
+        </div>
       </div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn-refresh" onclick="toggleSidebar()" id="btn-mobile-filter" style="display:none;align-items:center;background:var(--surface2);">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h14M6 10h8M9 15h2"/></svg>
-          Filtros
+
+      <div>
+        <div class="nav-label" style="margin-bottom:.5rem">Filter</div>
+        <div class="nav-item active" id="nav-all" onclick="setFilter('all', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <path d="M3 5h14M6 10h8M9 15h2" />
+          </svg>
+          All listings
+        </div>
+        <div class="nav-item" id="nav-eligible" onclick="setFilter('eligible', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <path d="M5 10l3 3 7-7" />
+          </svg>
+          Eligible only
+        </div>
+        <div class="nav-item" id="nav-accepts" onclick="setFilter('accepts', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="7" />
+            <path d="M10 6v4l3 2" />
+          </svg>
+          Historically accepts
+        </div>
+        <div class="nav-item" id="nav-highdemand" onclick="setFilter('highdemand', this)">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+            <path d="M3 17l4-8 4 4 3-5 3 9" />
+          </svg>
+          High-demand ZIPs
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-label" style="margin-bottom:.5rem">Property Type</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem;margin-bottom:1.5rem">
+          <button class="filter-tag on" data-type="all" onclick="filterType(this,'all')">All</button>
+          <button class="filter-tag" data-type="House" onclick="filterType(this,'House')">House</button>
+          <button class="filter-tag" data-type="Condo" onclick="filterType(this,'Condo')">Apt/Condo</button>
+          <button class="filter-tag" data-type="Duplex" onclick="filterType(this,'Duplex')">Duplex</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="nav-label" style="margin-bottom:.5rem">Bedrooms</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;padding:0 .5rem">
+          <button class="filter-tag on" data-bed="all" onclick="filterBed(this,'all')">All</button>
+          <button class="filter-tag" data-bed="1" onclick="filterBed(this,1)">1BR</button>
+          <button class="filter-tag" data-bed="2" onclick="filterBed(this,2)">2BR</button>
+          <button class="filter-tag" data-bed="3" onclick="filterBed(this,3)">3BR</button>
+          <button class="filter-tag" data-bed="4" onclick="filterBed(this,4)">4BR+</button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="sf-label">Last updated</div>
+        <div class="sf-val" id="last-updated">—</div>
+        <div class="sf-status">
+          <span class="dot-live"></span>
+          Auto-refresh hourly
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <!-- Sidebar overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <main class="main">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">MLS Section <span>8</span> listings</h1>
+          <p class="page-sub">Miami-Dade · Filtered by 2024 Payment Standards · Spark API</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-refresh" onclick="toggleSidebar()" id="btn-mobile-filter"
+            style="display:none;align-items:center;background:var(--surface2);">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 5h14M6 10h8M9 15h2" />
+            </svg>
+            Filtros
+          </button>
+          <button class="btn-refresh" onclick="loadData()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 10a6 6 0 1 0 1.5-4M4 6v4h4" />
+            </svg>
+            Refresh now
+          </button>
+        </div>
+      </div>
+
+      <div class="stats-row" id="stats-row">
+        <div class="stat-card highlight">
+          <div class="stat-label">Eligible listings</div>
+          <div class="stat-val green" id="s-eligible">—</div>
+          <div class="stat-sub">Within FMR limits</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Near FMR limit</div>
+          <div class="stat-val yellow" id="s-near">—</div>
+          <div class="stat-sub">Within 10% above FMR</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Historically accepts</div>
+          <div class="stat-val blue" id="s-accepts">—</div>
+          <div class="stat-sub">Mentioned in remarks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">High-demand ZIPs</div>
+          <div class="stat-val" id="s-demand">—</div>
+          <div class="stat-sub">Voucher holder concentration</div>
+        </div>
+      </div>
+
+      <div class="filters">
+        <input type="text" class="filter-input" id="search" placeholder="Search address, ZIP, city...">
+        <select class="filter-input" id="sort-by" onchange="render()">
+          <option value="score">Sort: opportunity score</option>
+          <option value="price_asc">Sort: price low–high</option>
+          <option value="price_desc">Sort: price high–low</option>
+          <option value="recent">Sort: most recent</option>
+        </select>
+        <button class="filter-tag" id="toggle-accepts" onclick="toggleFilter('accepts')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20">
+            <path d="M5 10l3 3 7-7" />
+          </svg>
+          Accepts vouchers
         </button>
-        <button class="btn-refresh" onclick="loadData()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path stroke-linecap="round" stroke-linejoin="round" d="M4 10a6 6 0 1 0 1.5-4M4 6v4h4"/></svg>
-          Refresh now
+        <button class="filter-tag" id="toggle-highdemand" onclick="toggleFilter('highdemand')">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20">
+            <path d="M3 17l4-8 4 4 3-5 3 9" />
+          </svg>
+          High-demand ZIP
         </button>
       </div>
-    </div>
-    
-    <div class="stats-row" id="stats-row">
-      <div class="stat-card highlight">
-        <div class="stat-label">Eligible listings</div>
-        <div class="stat-val green" id="s-eligible">—</div>
-        <div class="stat-sub">Within FMR limits</div>
+
+      <!-- Cards grid -->
+      <div class="grid" id="listings-grid"></div>
+
+      <!-- Map view -->
+      <div id="map-container">
+        <div class="map-count" id="map-count"><strong>—</strong> listings en el mapa</div>
+
+        <button class="btn-expand-map" id="btn-expand-map" onclick="toggleMapFullscreen()">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+          </svg>
+          <span>Expandir mapa</span>
+        </button>
+
+        <div class="map-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Score ≥ 70 · Eligible
+          </div>
+          <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Score 40–69 · Near limit
+          </div>
+          <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Score &lt; 40 · Over FMR
+          </div>
+        </div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Near FMR limit</div>
-        <div class="stat-val yellow" id="s-near">—</div>
-        <div class="stat-sub">Within 10% above FMR</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Historically accepts</div>
-        <div class="stat-val blue" id="s-accepts">—</div>
-        <div class="stat-sub">Mentioned in remarks</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">High-demand ZIPs</div>
-        <div class="stat-val" id="s-demand">—</div>
-        <div class="stat-sub">Voucher holder concentration</div>
-      </div>
-    </div>
+    </main>
 
-    <div class="filters">
-      <input type="text" class="filter-input" id="search" placeholder="Search address, ZIP, city...">
-      <select class="filter-input" id="sort-by" onchange="render()">
-        <option value="score">Sort: opportunity score</option>
-        <option value="price_asc">Sort: price low–high</option>
-        <option value="price_desc">Sort: price high–low</option>
-        <option value="recent">Sort: most recent</option>
-      </select>
-      <button class="filter-tag" id="toggle-accepts" onclick="toggleFilter('accepts')">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M5 10l3 3 7-7"/></svg>
-        Accepts vouchers
-      </button>
-      <button class="filter-tag" id="toggle-highdemand" onclick="toggleFilter('highdemand')">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 20 20"><path d="M3 17l4-8 4 4 3-5 3 9"/></svg>
-        High-demand ZIP
-      </button>
-    </div>
+    <button class="mobile-view-toggle" id="mobile-toggle" onclick="toggleMobileView()">
+      <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20">
+        <path
+          d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z" />
+      </svg>
+      <span>Ver mapa</span>
+    </button>
+  </div>
 
-    <!-- Cards grid -->
-    <div class="grid" id="listings-grid"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    /* ─── Demo data ─────────────────────────────────────── */
+    const DEMO_DATA = {
+      generated_at: new Date().toISOString(),
+      total_eligible: 18,
+      stats: { eligible: 14, near_limit: 4, over_limit: 8, high_demand: 11 },
+      listings: [
+        { id: "A1001", address: "1240 W 49th St", city: "Hialeah", zip: "33012", price: 1550, bedrooms: 2, bathrooms: 1, sqft: 820, type: "Apartment", remarks: "Vouchers welcome. Great location near transit. Section 8 accepted.", agent: "Maria Lopez", agent_email: "mlopez@realty.com", office: "Realty One Group", on_market: "2025-04-08", lat: 25.868, lng: -80.305, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 2010, max_allowed: 2211, list_price: 1550, gap: -460, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1002", address: "3321 NW 7th Ave", city: "Miami", zip: "33127", price: 1200, bedrooms: 1, bathrooms: 1, sqft: 640, type: "Apartment", remarks: "Clean unit, all utilities included. HCV welcome.", agent: "Carlos Ruiz", agent_email: "cruiz@miami.com", office: "Miami Realty Group", on_market: "2025-04-10", lat: 25.789, lng: -80.212, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1580, max_allowed: 1738, list_price: 1200, gap: -380, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1003", address: "8901 SW 107th Ave", city: "Kendall", zip: "33183", price: 1680, bedrooms: 2, bathrooms: 2, sqft: 980, type: "Condo", remarks: "Spacious 2/2 in gated community. Good schools nearby.", agent: "Ana Fernandez", agent_email: "ana@kendallprop.com", office: "Kendall Properties", on_market: "2025-04-05", lat: 25.685, lng: -80.412, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 2110, max_allowed: 2321, list_price: 1680, gap: -430, historically_accepts: false, high_demand_zip: true, opportunity_score: 80 } },
+        { id: "A1004", address: "14200 NE 6th Ave", city: "North Miami", zip: "33161", price: 1950, bedrooms: 3, bathrooms: 2, sqft: 1150, type: "House", remarks: "3BR house, large yard. Owner open to housing voucher program.", agent: "James Williams", agent_email: "jwill@nmiami.com", office: "North Miami Realty", on_market: "2025-04-03", lat: 25.895, lng: -80.171, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 2620, max_allowed: 2882, list_price: 1950, gap: -670, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1005", address: "2450 SW 87th Ave", city: "Doral", zip: "33122", price: 1750, bedrooms: 1, bathrooms: 1, sqft: 750, type: "Apartment", remarks: "Modern apartment in Doral. No pets.", agent: "Sofia Morales", agent_email: "sofia@doralre.com", office: "Doral Real Estate", on_market: "2025-04-09", lat: 25.819, lng: -80.352, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1800, max_allowed: 1980, list_price: 1750, gap: -50, historically_accepts: false, high_demand_zip: true, opportunity_score: 74 } },
+        { id: "A1006", address: "560 NW 131st St", city: "Opa-locka", zip: "33054", price: 1280, bedrooms: 2, bathrooms: 1, sqft: 780, type: "House", remarks: "Section 8 accepted. Previous tenant 4 years, no issues.", agent: "Robert Johnson", agent_email: "rjohnson@opalre.com", office: "Opa-locka Homes", on_market: "2025-03-28", lat: 25.903, lng: -80.254, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1900, max_allowed: 2090, list_price: 1280, gap: -620, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1007", address: "1800 W Flagler St", city: "Miami", zip: "33135", price: 1890, bedrooms: 2, bathrooms: 1, sqft: 860, type: "Apartment", remarks: "Updated kitchen and bath. Close to Brickell.", agent: "Luis Gonzalez", agent_email: "lgonz@flaglerp.com", office: "Flagler Properties", on_market: "2025-04-11", lat: 25.769, lng: -80.234, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1920, max_allowed: 2112, list_price: 1890, gap: -30, historically_accepts: false, high_demand_zip: true, opportunity_score: 70 } },
+        { id: "A1008", address: "22300 SW 112th Ave", city: "Homestead", zip: "33030", price: 1450, bedrooms: 3, bathrooms: 2, sqft: 1050, type: "House", remarks: "Family home. Vouchers accepted. Quiet neighborhood.", agent: "Patricia Suarez", agent_email: "psuarez@hmstd.com", office: "Homestead Realty", on_market: "2025-04-01", lat: 25.473, lng: -80.476, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1870, max_allowed: 2057, list_price: 1450, gap: -420, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1009", address: "9100 NW 27th Ave", city: "Miami", zip: "33147", price: 1580, bedrooms: 2, bathrooms: 1, sqft: 790, type: "Duplex", remarks: "Quiet duplex. HACD approved landlord.", agent: "Miguel Torres", agent_email: "mtorres@nwmiami.com", office: "NW Miami Realty", on_market: "2025-03-30", lat: 25.842, lng: -80.241, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 1960, max_allowed: 2156, list_price: 1580, gap: -380, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+        { id: "A1010", address: "6700 Biscayne Blvd", city: "Miami", zip: "33138", price: 2100, bedrooms: 2, bathrooms: 2, sqft: 1020, type: "Condo", remarks: "Modern condo, pool and gym. Pet friendly.", agent: "Elena Castro", agent_email: "ecastro@biscayne.com", office: "Biscayne Bay Realty", on_market: "2025-04-07", lat: 25.836, lng: -80.185, photo: "", section8: { eligible: false, status: "near_limit", payment_standard: 1920, max_allowed: 2112, list_price: 2100, gap: 180, historically_accepts: false, high_demand_zip: false, opportunity_score: 30 } },
+        { id: "A1011", address: "4500 Collins Ave", city: "Miami Beach", zip: "33140", price: 2800, bedrooms: 1, bathrooms: 1, sqft: 680, type: "Apartment", remarks: "Beachfront apartment. Short-term only.", agent: "David Kim", agent_email: "dkim@mbeach.com", office: "Miami Beach Luxury", on_market: "2025-04-12", lat: 25.809, lng: -80.122, photo: "", section8: { eligible: false, status: "over_limit", payment_standard: 1580, max_allowed: 1738, list_price: 2800, gap: 1220, historically_accepts: false, high_demand_zip: false, opportunity_score: 0 } },
+        { id: "A1012", address: "750 NW 95th St", city: "Miami Shores", zip: "33150", price: 1620, bedrooms: 3, bathrooms: 2, sqft: 1100, type: "House", remarks: "Large 3BR, big backyard. Owner accepts HCV.", agent: "Carmen Diaz", agent_email: "cdiaz@shores.com", office: "Miami Shores Realty", on_market: "2025-03-25", lat: 25.869, lng: -80.201, photo: "", section8: { eligible: true, status: "eligible", payment_standard: 2480, max_allowed: 2728, list_price: 1620, gap: -860, historically_accepts: true, high_demand_zip: true, opportunity_score: 100 } },
+      ]
+    };
 
-    <!-- Map view -->
-    <div id="map-container">
-      <div class="map-count" id="map-count"><strong>—</strong> listings en el mapa</div>
-      
-      <button class="btn-expand-map" id="btn-expand-map" onclick="toggleMapFullscreen()">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-        <span>Expandir mapa</span>
-      </button>
+    /* ─── State ─────────────────────────────────────────── */
+    let allListings = [];
+    let displayMode = 'cards';  // 'cards' | 'map'
+    let activeFilter = 'all';    // 'all' | 'eligible' | 'accepts' | 'highdemand'
+    let activeBed = 'all';
+    let activeType = 'all';
+    let filters = { accepts: false, highdemand: false };
+    let mapInstance = null;
+    let mapMarkers = [];
 
-      <div class="map-legend">
-        <div class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Score ≥ 70 · Eligible</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#facc15"></span>Score 40–69 · Near limit</div>
-        <div class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Score &lt; 40 · Over FMR</div>
-      </div>
-    </div>
-  </main>
-  
-  <button class="mobile-view-toggle" id="mobile-toggle" onclick="toggleMobileView()">
-    <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 20 20"><path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/></svg>
-    <span>Ver mapa</span>
-  </button>
-</div>
+    /* ─── Load data ─────────────────────────────────────── */
+    async function loadData() {
+      try {
+        const resp = await fetch('listings_section8.json?t=' + Date.now());
+        if (!resp.ok) throw new Error('not found');
+        const data = await resp.json();
+        allListings = data.listings;
+        document.getElementById('last-updated').textContent =
+          new Date(data.generated_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        updateStats(data.stats);
+        document.getElementById('demo-banner').style.display = 'none';
+      } catch {
+        allListings = DEMO_DATA.listings;
+        document.getElementById('last-updated').textContent = 'Demo mode';
+        updateStats(DEMO_DATA.stats);
+        document.getElementById('demo-banner').style.display = 'flex';
+      }
+      render();
+    }
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-/* ─── Demo data ─────────────────────────────────────── */
-const DEMO_DATA = {
-  generated_at: new Date().toISOString(),
-  total_eligible: 18,
-  stats: {eligible:14,near_limit:4,over_limit:8,high_demand:11},
-  listings: [
-    {id:"A1001",address:"1240 W 49th St",city:"Hialeah",zip:"33012",price:1550,bedrooms:2,bathrooms:1,sqft:820,type:"Apartment",remarks:"Vouchers welcome. Great location near transit. Section 8 accepted.",agent:"Maria Lopez",agent_email:"mlopez@realty.com",office:"Realty One Group",on_market:"2025-04-08",lat:25.868,lng:-80.305,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2010,max_allowed:2211,list_price:1550,gap:-460,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1002",address:"3321 NW 7th Ave",city:"Miami",zip:"33127",price:1200,bedrooms:1,bathrooms:1,sqft:640,type:"Apartment",remarks:"Clean unit, all utilities included. HCV welcome.",agent:"Carlos Ruiz",agent_email:"cruiz@miami.com",office:"Miami Realty Group",on_market:"2025-04-10",lat:25.789,lng:-80.212,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1580,max_allowed:1738,list_price:1200,gap:-380,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1003",address:"8901 SW 107th Ave",city:"Kendall",zip:"33183",price:1680,bedrooms:2,bathrooms:2,sqft:980,type:"Condo",remarks:"Spacious 2/2 in gated community. Good schools nearby.",agent:"Ana Fernandez",agent_email:"ana@kendallprop.com",office:"Kendall Properties",on_market:"2025-04-05",lat:25.685,lng:-80.412,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2110,max_allowed:2321,list_price:1680,gap:-430,historically_accepts:false,high_demand_zip:true,opportunity_score:80}},
-    {id:"A1004",address:"14200 NE 6th Ave",city:"North Miami",zip:"33161",price:1950,bedrooms:3,bathrooms:2,sqft:1150,type:"House",remarks:"3BR house, large yard. Owner open to housing voucher program.",agent:"James Williams",agent_email:"jwill@nmiami.com",office:"North Miami Realty",on_market:"2025-04-03",lat:25.895,lng:-80.171,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2620,max_allowed:2882,list_price:1950,gap:-670,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1005",address:"2450 SW 87th Ave",city:"Doral",zip:"33122",price:1750,bedrooms:1,bathrooms:1,sqft:750,type:"Apartment",remarks:"Modern apartment in Doral. No pets.",agent:"Sofia Morales",agent_email:"sofia@doralre.com",office:"Doral Real Estate",on_market:"2025-04-09",lat:25.819,lng:-80.352,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1800,max_allowed:1980,list_price:1750,gap:-50,historically_accepts:false,high_demand_zip:true,opportunity_score:74}},
-    {id:"A1006",address:"560 NW 131st St",city:"Opa-locka",zip:"33054",price:1280,bedrooms:2,bathrooms:1,sqft:780,type:"House",remarks:"Section 8 accepted. Previous tenant 4 years, no issues.",agent:"Robert Johnson",agent_email:"rjohnson@opalre.com",office:"Opa-locka Homes",on_market:"2025-03-28",lat:25.903,lng:-80.254,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1900,max_allowed:2090,list_price:1280,gap:-620,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1007",address:"1800 W Flagler St",city:"Miami",zip:"33135",price:1890,bedrooms:2,bathrooms:1,sqft:860,type:"Apartment",remarks:"Updated kitchen and bath. Close to Brickell.",agent:"Luis Gonzalez",agent_email:"lgonz@flaglerp.com",office:"Flagler Properties",on_market:"2025-04-11",lat:25.769,lng:-80.234,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1920,max_allowed:2112,list_price:1890,gap:-30,historically_accepts:false,high_demand_zip:true,opportunity_score:70}},
-    {id:"A1008",address:"22300 SW 112th Ave",city:"Homestead",zip:"33030",price:1450,bedrooms:3,bathrooms:2,sqft:1050,type:"House",remarks:"Family home. Vouchers accepted. Quiet neighborhood.",agent:"Patricia Suarez",agent_email:"psuarez@hmstd.com",office:"Homestead Realty",on_market:"2025-04-01",lat:25.473,lng:-80.476,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1870,max_allowed:2057,list_price:1450,gap:-420,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1009",address:"9100 NW 27th Ave",city:"Miami",zip:"33147",price:1580,bedrooms:2,bathrooms:1,sqft:790,type:"Duplex",remarks:"Quiet duplex. HACD approved landlord.",agent:"Miguel Torres",agent_email:"mtorres@nwmiami.com",office:"NW Miami Realty",on_market:"2025-03-30",lat:25.842,lng:-80.241,photo:"",section8:{eligible:true,status:"eligible",payment_standard:1960,max_allowed:2156,list_price:1580,gap:-380,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-    {id:"A1010",address:"6700 Biscayne Blvd",city:"Miami",zip:"33138",price:2100,bedrooms:2,bathrooms:2,sqft:1020,type:"Condo",remarks:"Modern condo, pool and gym. Pet friendly.",agent:"Elena Castro",agent_email:"ecastro@biscayne.com",office:"Biscayne Bay Realty",on_market:"2025-04-07",lat:25.836,lng:-80.185,photo:"",section8:{eligible:false,status:"near_limit",payment_standard:1920,max_allowed:2112,list_price:2100,gap:180,historically_accepts:false,high_demand_zip:false,opportunity_score:30}},
-    {id:"A1011",address:"4500 Collins Ave",city:"Miami Beach",zip:"33140",price:2800,bedrooms:1,bathrooms:1,sqft:680,type:"Apartment",remarks:"Beachfront apartment. Short-term only.",agent:"David Kim",agent_email:"dkim@mbeach.com",office:"Miami Beach Luxury",on_market:"2025-04-12",lat:25.809,lng:-80.122,photo:"",section8:{eligible:false,status:"over_limit",payment_standard:1580,max_allowed:1738,list_price:2800,gap:1220,historically_accepts:false,high_demand_zip:false,opportunity_score:0}},
-    {id:"A1012",address:"750 NW 95th St",city:"Miami Shores",zip:"33150",price:1620,bedrooms:3,bathrooms:2,sqft:1100,type:"House",remarks:"Large 3BR, big backyard. Owner accepts HCV.",agent:"Carmen Diaz",agent_email:"cdiaz@shores.com",office:"Miami Shores Realty",on_market:"2025-03-25",lat:25.869,lng:-80.201,photo:"",section8:{eligible:true,status:"eligible",payment_standard:2480,max_allowed:2728,list_price:1620,gap:-860,historically_accepts:true,high_demand_zip:true,opportunity_score:100}},
-  ]
-};
+    function updateStats(s) {
+      document.getElementById('s-eligible').textContent = s.eligible ?? '—';
+      document.getElementById('s-near').textContent = s.near_limit ?? '—';
+      document.getElementById('s-accepts').textContent = allListings.filter(l => l.section8.historically_accepts).length;
+      document.getElementById('s-demand').textContent = s.high_demand ?? '—';
+    }
 
-/* ─── State ─────────────────────────────────────────── */
-let allListings  = [];
-let displayMode  = 'cards';  // 'cards' | 'map'
-let activeFilter = 'all';    // 'all' | 'eligible' | 'accepts' | 'highdemand'
-let activeBed    = 'all';
-let activeType   = 'all';
-let filters      = { accepts: false, highdemand: false };
-let mapInstance  = null;
-let mapMarkers   = [];
+    /* ─── Filtering ─────────────────────────────────────── */
+    function getFilteredData() {
+      const q = document.getElementById('search').value.toLowerCase();
+      const sort = document.getElementById('sort-by').value;
+      let data = [...allListings];
 
-/* ─── Load data ─────────────────────────────────────── */
-async function loadData() {
-  try {
-    const resp = await fetch('listings_section8.json?t=' + Date.now());
-    if (!resp.ok) throw new Error('not found');
-    const data = await resp.json();
-    allListings = data.listings;
-    document.getElementById('last-updated').textContent =
-      new Date(data.generated_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    updateStats(data.stats);
-    document.getElementById('demo-banner').style.display = 'none';
-  } catch {
-    allListings = DEMO_DATA.listings;
-    document.getElementById('last-updated').textContent = 'Demo mode';
-    updateStats(DEMO_DATA.stats);
-    document.getElementById('demo-banner').style.display = 'flex';
-  }
-  render();
-}
+      if (activeFilter === 'eligible') data = data.filter(l => l.section8.eligible);
+      if (activeFilter === 'accepts') data = data.filter(l => l.section8.historically_accepts);
+      if (activeFilter === 'highdemand') data = data.filter(l => l.section8.high_demand_zip);
+      if (activeBed !== 'all') data = data.filter(l => activeBed == 4 ? l.bedrooms >= 4 : l.bedrooms == activeBed);
+      if (activeType !== 'all') data = data.filter(l => activeType === 'Condo' ? (l.type === 'Condo' || l.type === 'Apartment') : l.type === activeType);
+      if (filters.accepts) data = data.filter(l => l.section8.historically_accepts);
+      if (filters.highdemand) data = data.filter(l => l.section8.high_demand_zip);
+      if (q) data = data.filter(l =>
+        (l.address || '').toLowerCase().includes(q) ||
+        (l.city || '').toLowerCase().includes(q) ||
+        (l.zip || '').includes(q)
+      );
 
-function updateStats(s) {
-  document.getElementById('s-eligible').textContent = s.eligible   ?? '—';
-  document.getElementById('s-near').textContent     = s.near_limit ?? '—';
-  document.getElementById('s-accepts').textContent  = allListings.filter(l => l.section8.historically_accepts).length;
-  document.getElementById('s-demand').textContent   = s.high_demand ?? '—';
-}
+      if (sort === 'score') data.sort((a, b) => b.section8.opportunity_score - a.section8.opportunity_score);
+      else if (sort === 'price_asc') data.sort((a, b) => a.price - b.price);
+      else if (sort === 'price_desc') data.sort((a, b) => b.price - a.price);
+      else if (sort === 'recent') data.sort((a, b) => new Date(b.on_market) - new Date(a.on_market));
 
-/* ─── Filtering ─────────────────────────────────────── */
-function getFilteredData() {
-  const q    = document.getElementById('search').value.toLowerCase();
-  const sort = document.getElementById('sort-by').value;
-  let data   = [...allListings];
+      return data;
+    }
 
-  if (activeFilter === 'eligible')   data = data.filter(l => l.section8.eligible);
-  if (activeFilter === 'accepts')    data = data.filter(l => l.section8.historically_accepts);
-  if (activeFilter === 'highdemand') data = data.filter(l => l.section8.high_demand_zip);
-  if (activeBed !== 'all')           data = data.filter(l => activeBed == 4 ? l.bedrooms >= 4 : l.bedrooms == activeBed);
-  if (activeType !== 'all')          data = data.filter(l => activeType === 'Condo' ? (l.type === 'Condo' || l.type === 'Apartment') : l.type === activeType);
-  if (filters.accepts)               data = data.filter(l => l.section8.historically_accepts);
-  if (filters.highdemand)            data = data.filter(l => l.section8.high_demand_zip);
-  if (q) data = data.filter(l =>
-    (l.address || '').toLowerCase().includes(q) ||
-    (l.city    || '').toLowerCase().includes(q) ||
-    (l.zip     || '').includes(q)
-  );
+    /* ─── View switching ────────────────────────────────── */
+    function setDisplayMode(mode, el) {
+      displayMode = mode;
+      document.getElementById('nav-cards').classList.toggle('active', mode === 'cards');
+      document.getElementById('nav-map').classList.toggle('active', mode === 'map');
+      document.getElementById('listings-grid').style.display = mode === 'cards' ? 'grid' : 'none';
+      document.getElementById('map-container').style.display = mode === 'map' ? 'block' : 'none';
+      render();
+    }
 
-  if (sort === 'score')           data.sort((a, b) => b.section8.opportunity_score - a.section8.opportunity_score);
-  else if (sort === 'price_asc')  data.sort((a, b) => a.price - b.price);
-  else if (sort === 'price_desc') data.sort((a, b) => b.price - a.price);
-  else if (sort === 'recent')     data.sort((a, b) => new Date(b.on_market) - new Date(a.on_market));
+    function toggleMobileView() {
+      const newMode = displayMode === 'cards' ? 'map' : 'cards';
+      setDisplayMode(newMode);
 
-  return data;
-}
+      const span = document.querySelector('#mobile-toggle span');
+      const svg = document.querySelector('#mobile-toggle svg');
 
-/* ─── View switching ────────────────────────────────── */
-function setDisplayMode(mode, el) {
-  displayMode = mode;
-  document.getElementById('nav-cards').classList.toggle('active', mode === 'cards');
-  document.getElementById('nav-map').classList.toggle('active',   mode === 'map');
-  document.getElementById('listings-grid').style.display = mode === 'cards' ? 'grid'  : 'none';
-  document.getElementById('map-container').style.display = mode === 'map'   ? 'block' : 'none';
-  render();
-}
+      if (newMode === 'map') {
+        span.textContent = 'Ver tarjetas';
+        svg.innerHTML = '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/>';
+      } else {
+        span.textContent = 'Ver mapa';
+        svg.innerHTML = '<path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/>';
+      }
+    }
 
-function toggleMobileView() {
-  const newMode = displayMode === 'cards' ? 'map' : 'cards';
-  setDisplayMode(newMode);
-  
-  const span = document.querySelector('#mobile-toggle span');
-  const svg = document.querySelector('#mobile-toggle svg');
-  
-  if (newMode === 'map') {
-    span.textContent = 'Ver tarjetas';
-    svg.innerHTML = '<rect x="3" y="3" width="6" height="6" rx="1"/><rect x="11" y="3" width="6" height="6" rx="1"/><rect x="3" y="11" width="6" height="6" rx="1"/><rect x="11" y="11" width="6" height="6" rx="1"/>';
-  } else {
-    span.textContent = 'Ver mapa';
-    svg.innerHTML = '<path d="M10 2C7.24 2 5 4.24 5 7c0 3.75 5 11 5 11s5-7.25 5-11c0-2.76-2.24-5-5-5zm0 6.5A1.5 1.5 0 1 1 10 5a1.5 1.5 0 0 1 0 3.5z"/>';
-  }
-}
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
 
-function toggleSidebar() {
-  document.querySelector('.sidebar').classList.toggle('open');
-  document.getElementById('sidebar-overlay').classList.toggle('open');
-}
+    function setFilter(f, el) {
+      activeFilter = f;
+      ['nav-all', 'nav-eligible', 'nav-accepts', 'nav-highdemand'].forEach(id =>
+        document.getElementById(id).classList.remove('active')
+      );
+      el.classList.add('active');
+      render();
+    }
 
-function setFilter(f, el) {
-  activeFilter = f;
-  ['nav-all', 'nav-eligible', 'nav-accepts', 'nav-highdemand'].forEach(id =>
-    document.getElementById(id).classList.remove('active')
-  );
-  el.classList.add('active');
-  render();
-}
+    function filterBed(el, val) {
+      activeBed = val;
+      document.querySelectorAll('[data-bed]').forEach(b => b.classList.remove('on'));
+      el.classList.add('on');
+      render();
+    }
 
-function filterBed(el, val) {
-  activeBed = val;
-  document.querySelectorAll('[data-bed]').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-  render();
-}
+    function filterType(el, val) {
+      activeType = val;
+      document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('on'));
+      el.classList.add('on');
+      render();
+    }
 
-function filterType(el, val) {
-  activeType = val;
-  document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('on'));
-  el.classList.add('on');
-  render();
-}
+    function toggleFilter(name) {
+      filters[name] = !filters[name];
+      document.getElementById('toggle-' + name).classList.toggle('on', filters[name]);
+      render();
+    }
 
-function toggleFilter(name) {
-  filters[name] = !filters[name];
-  document.getElementById('toggle-' + name).classList.toggle('on', filters[name]);
-  render();
-}
+    function render() {
+      if (displayMode === 'map') renderMap();
+      else renderCards();
+    }
 
-function render() {
-  if (displayMode === 'map') renderMap();
-  else                       renderCards();
-}
+    /* ─── Cards ─────────────────────────────────────────── */
+    function renderCards() {
+      const data = getFilteredData();
+      const grid = document.getElementById('listings-grid');
 
-/* ─── Cards ─────────────────────────────────────────── */
-function renderCards() {
-  const data = getFilteredData();
-  const grid = document.getElementById('listings-grid');
-
-  if (!data.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      if (!data.length) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
       <svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 20 20"><circle cx="8" cy="8" r="5"/><path d="m13 13 4 4"/></svg>
       <p>No listings match your filters</p>
       <small>Try adjusting the search or filter criteria</small>
     </div>`;
-    return;
-  }
+        return;
+      }
 
-  grid.innerHTML = data.map(l => {
-    const s          = l.section8;
-    const cardClass  = s.status === 'eligible'   ? 'eligible' : s.status === 'near_limit' ? 'near' : 'over';
-    const scoreClass = s.opportunity_score >= 70  ? 'score-high' : s.opportunity_score >= 40 ? 'score-med' : 'score-low';
-    const fmrClass   = s.status === 'eligible'   ? 'fmr-ok'   : s.status === 'near_limit'  ? 'fmr-warn'  : 'fmr-err';
-    const gapText    = s.gap <= 0 ? `$${Math.abs(s.gap)} under FMR` : `$${s.gap} over FMR`;
-    const pctFmr     = Math.round((l.price / s.payment_standard) * 100);
+      grid.innerHTML = data.map(l => {
+        const s = l.section8;
+        const cardClass = s.status === 'eligible' ? 'eligible' : s.status === 'near_limit' ? 'near' : 'over';
+        const scoreClass = s.opportunity_score >= 70 ? 'score-high' : s.opportunity_score >= 40 ? 'score-med' : 'score-low';
+        const fmrClass = s.status === 'eligible' ? 'fmr-ok' : s.status === 'near_limit' ? 'fmr-warn' : 'fmr-err';
+        const gapText = s.gap <= 0 ? `$${Math.abs(s.gap)} under FMR` : `$${s.gap} over FMR`;
+        const pctFmr = Math.round((l.price / s.payment_standard) * 100);
 
-    let badges = '';
-    if (s.status === 'eligible')        badges += `<span class="badge badge-ok">Within FMR</span>`;
-    else if (s.status === 'near_limit') badges += `<span class="badge badge-warn">Near limit</span>`;
-    else                                badges += `<span class="badge badge-err">Over FMR</span>`;
-    if (s.historically_accepts) badges += `<span class="badge badge-blue">Accepts vouchers</span>`;
-    if (s.high_demand_zip)      badges += `<span class="badge badge-gray">High demand ZIP</span>`;
+        let badges = '';
+        if (s.status === 'eligible') badges += `<span class="badge badge-ok">Within FMR</span>`;
+        else if (s.status === 'near_limit') badges += `<span class="badge badge-warn">Near limit</span>`;
+        else badges += `<span class="badge badge-err">Over FMR</span>`;
+        if (s.historically_accepts) badges += `<span class="badge badge-blue">Accepts vouchers</span>`;
+        if (s.high_demand_zip) badges += `<span class="badge badge-gray">High demand ZIP</span>`;
 
-    const photo = l.photo
-      ? `<img src="${l.photo}" alt="${l.address}" loading="lazy">`
-      : `<div class="card-photo-placeholder"><svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="2"/><circle cx="7" cy="9" r="1.5"/><path d="m2 14 4-4 3 3 3-3 6 6"/></svg><span>No photo</span></div>`;
+        const photo = l.photo
+          ? `<img src="${l.photo}" alt="${l.address}" loading="lazy">`
+          : `<div class="card-photo-placeholder"><svg fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="2"/><circle cx="7" cy="9" r="1.5"/><path d="m2 14 4-4 3 3 3-3 6 6"/></svg><span>No photo</span></div>`;
 
-    const onMarket = l.on_market
-      ? new Date(l.on_market).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      : '—';
+        const onMarket = l.on_market
+          ? new Date(l.on_market).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : '—';
 
-    return `<div class="listing-card ${cardClass}">
+        return `<div class="listing-card ${cardClass}">
       <div class="card-photo">
         ${photo}
         <span class="card-score ${scoreClass}">${s.opportunity_score}/100</span>
@@ -648,60 +1420,60 @@ function renderCards() {
         <span class="card-date">Listed ${onMarket}</span>
       </div>
     </div>`;
-  }).join('');
-}
+      }).join('');
+    }
 
-/* ─── Map ────────────────────────────────────────────── */
-function initMap() {
-  if (mapInstance) return;
+    /* ─── Map ────────────────────────────────────────────── */
+    function initMap() {
+      if (mapInstance) return;
 
-  mapInstance = L.map('map-container', {
-    center: [25.77, -80.22],
-    zoom: 11,
-  });
+      mapInstance = L.map('map-container', {
+        center: [25.77, -80.22],
+        zoom: 11,
+      });
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19,
-  }).addTo(mapInstance);
-}
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19,
+      }).addTo(mapInstance);
+    }
 
-function scoreColor(score) {
-  if (score >= 70) return '#4ade80';
-  if (score >= 40) return '#facc15';
-  return '#f87171';
-}
+    function scoreColor(score) {
+      if (score >= 70) return '#5ec490';
+      if (score >= 40) return '#e7a83a';
+      return '#e07070';
+    }
 
-function renderMap() {
-  initMap();
-  setTimeout(() => mapInstance.invalidateSize(), 80);
+    function renderMap() {
+      initMap();
+      setTimeout(() => mapInstance.invalidateSize(), 80);
 
-  // Clear old markers
-  mapMarkers.forEach(m => mapInstance.removeLayer(m));
-  mapMarkers = [];
+      // Clear old markers
+      mapMarkers.forEach(m => mapInstance.removeLayer(m));
+      mapMarkers = [];
 
-  const data = getFilteredData();
-  const withCoords = data.filter(l => l.lat && l.lng);
+      const data = getFilteredData();
+      const withCoords = data.filter(l => l.lat && l.lng);
 
-  document.getElementById('map-count').innerHTML =
-    `<strong>${withCoords.length}</strong> listing${withCoords.length !== 1 ? 's' : ''} en el mapa`;
+      document.getElementById('map-count').innerHTML =
+        `<strong>${withCoords.length}</strong> listing${withCoords.length !== 1 ? 's' : ''} en el mapa`;
 
-  withCoords.forEach(l => {
-    const s        = l.section8;
-    const color    = scoreColor(s.opportunity_score);
-    const gapText  = s.gap <= 0 ? `$${Math.abs(s.gap)} under FMR` : `$${s.gap} over FMR`;
-    const gapColor = s.gap <= 0 ? '#4ade80' : s.status === 'near_limit' ? '#facc15' : '#f87171';
+      withCoords.forEach(l => {
+        const s = l.section8;
+        const color = scoreColor(s.opportunity_score);
+        const gapText = s.gap <= 0 ? `$${Math.abs(s.gap)} under FMR` : `$${s.gap} over FMR`;
+        const gapColor = s.gap <= 0 ? '#2e9c6a' : s.status === 'near_limit' ? '#c07b20' : '#c04040';
 
-    const onMarket = l.on_market
-      ? new Date(l.on_market).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-      : '—';
+        const onMarket = l.on_market
+          ? new Date(l.on_market).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+          : '—';
 
-    let popupBadges = '';
-    if (s.historically_accepts) popupBadges += `<span style="font-size:10px;font-family:var(--font-mono);padding:2px 7px;border-radius:4px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.25)">Accepts vouchers</span>`;
-    if (s.high_demand_zip)      popupBadges += `<span style="font-size:10px;font-family:var(--font-mono);padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.06);color:#6b7280;border:1px solid rgba(255,255,255,.1)">High demand ZIP</span>`;
+        let popupBadges = '';
+        if (s.historically_accepts) popupBadges += `<span style="font-size:10px;font-family:var(--font-mono);padding:2px 7px;border-radius:4px;background:rgba(96,165,250,.15);color:#60a5fa;border:1px solid rgba(96,165,250,.25)">Accepts vouchers</span>`;
+        if (s.high_demand_zip) popupBadges += `<span style="font-size:10px;font-family:var(--font-mono);padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.06);color:#6b7280;border:1px solid rgba(255,255,255,.1)">High demand ZIP</span>`;
 
-    const popup = `
+        const popup = `
       <div class="map-popup">
         <div class="mp-address">${l.address}</div>
         <div class="mp-city">${l.city}, FL ${l.zip}</div>
@@ -716,55 +1488,56 @@ function renderMap() {
         <div class="mp-meta">Listed ${onMarket} · ${l.type || '—'} · ${l.agent || '—'}</div>
       </div>`;
 
-    const marker = L.circleMarker([l.lat, l.lng], {
-      radius:      10,
-      fillColor:   color,
-      color:       '#0d0f14',
-      weight:      2,
-      opacity:     1,
-      fillOpacity: 0.9,
-    }).bindPopup(popup, { maxWidth: 300 });
+        const marker = L.circleMarker([l.lat, l.lng], {
+          radius: 10,
+          fillColor: color,
+          color: '#0d0f14',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9,
+        }).bindPopup(popup, { maxWidth: 300 });
 
-    marker.on('mouseover', function () { this.setStyle({ radius: 14, weight: 3 }); this.openPopup(); });
-    marker.on('mouseout',  function () { this.setStyle({ radius: 10, weight: 2 }); });
+        marker.on('mouseover', function () { this.setStyle({ radius: 14, weight: 3 }); this.openPopup(); });
+        marker.on('mouseout', function () { this.setStyle({ radius: 10, weight: 2 }); });
 
-    marker.addTo(mapInstance);
-    mapMarkers.push(marker);
-  });
+        marker.addTo(mapInstance);
+        mapMarkers.push(marker);
+      });
 
-  // Fit bounds to visible markers
-  if (mapMarkers.length > 0) {
-    mapInstance.fitBounds(
-      L.featureGroup(mapMarkers).getBounds().pad(0.1)
-    );
-  }
-}
+      // Fit bounds to visible markers
+      if (mapMarkers.length > 0) {
+        mapInstance.fitBounds(
+          L.featureGroup(mapMarkers).getBounds().pad(0.1)
+        );
+      }
+    }
 
-let isMapFullscreen = false;
-function toggleMapFullscreen() {
-  isMapFullscreen = !isMapFullscreen;
-  const container = document.getElementById('map-container');
-  const btnSpan = document.querySelector('#btn-expand-map span');
-  
-  if (isMapFullscreen) {
-    container.classList.add('map-fullscreen');
-    btnSpan.textContent = 'Restaurar mapa';
-  } else {
-    container.classList.remove('map-fullscreen');
-    btnSpan.textContent = 'Expandir mapa';
-  }
-  
-  if (mapInstance) {
-    // Small delay to allow CSS animation/layout to finish before recalculating
-    setTimeout(() => mapInstance.invalidateSize(), 300);
-  }
-}
+    let isMapFullscreen = false;
+    function toggleMapFullscreen() {
+      isMapFullscreen = !isMapFullscreen;
+      const container = document.getElementById('map-container');
+      const btnSpan = document.querySelector('#btn-expand-map span');
 
-/* ─── Init ───────────────────────────────────────────── */
-document.getElementById('search').addEventListener('input', render);
+      if (isMapFullscreen) {
+        container.classList.add('map-fullscreen');
+        btnSpan.textContent = 'Restaurar mapa';
+      } else {
+        container.classList.remove('map-fullscreen');
+        btnSpan.textContent = 'Expandir mapa';
+      }
 
-loadData();
-setInterval(loadData, 60 * 60 * 1000);
-</script>
+      if (mapInstance) {
+        // Small delay to allow CSS animation/layout to finish before recalculating
+        setTimeout(() => mapInstance.invalidateSize(), 300);
+      }
+    }
+
+    /* ─── Init ───────────────────────────────────────────── */
+    document.getElementById('search').addEventListener('input', render);
+
+    loadData();
+    setInterval(loadData, 60 * 60 * 1000);
+  </script>
 </body>
+
 </html>
