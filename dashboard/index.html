@@ -1243,6 +1243,13 @@
 
     /* ─── Load data ─────────────────────────────────────── */
     async function loadData() {
+      // Mostrar datos por defecto instantáneamente para que no haya un parpadeo en blanco
+      if (!allListings.length) {
+        allListings = DEMO_DATA.listings;
+        updateStats(DEMO_DATA.stats);
+        render();
+      }
+
       try {
         const resp = await fetch('listings_section8.json?t=' + Date.now());
         if (!resp.ok) throw new Error('not found');
